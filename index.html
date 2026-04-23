@@ -1,0 +1,1514 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#FFFBF5">
+<title>AI替我打工评估器</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#FFFBF5;--card:#fff;--s1:#F9FAFB;--s2:#F3F4F6;
+  --gr:#10B981;--grl:#D1FAE5;--grd:#059669;
+  --bl:#3B82F6;--bll:#DBEAFE;
+  --am:#F59E0B;--aml:#FEF3C7;
+  --or:#F97316;--orl:#FFEDD5;
+  --rd:#EF4444;--rdl:#FEE2E2;
+  --tx:#111827;--t2:#374151;--td:#6B7280;
+  --br:#E5E7EB;--sh:rgba(0,0,0,0.07);
+  --fn:'Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;
+  --nm:'Nunito',sans-serif;
+  --rx:18px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:var(--fn);background:var(--bg);color:var(--tx);height:100dvh;overflow:hidden;position:relative}
+body::before{content:'';position:fixed;inset:0;background:
+  radial-gradient(circle 400px at 15% 10%,rgba(16,185,129,.07),transparent),
+  radial-gradient(circle 350px at 85% 90%,rgba(59,130,246,.06),transparent),
+  radial-gradient(circle 300px at 50% 55%,rgba(245,158,11,.04),transparent);
+  pointer-events:none;z-index:0}
+.page{position:absolute;inset:0;display:flex;flex-direction:column;opacity:0;visibility:hidden;
+  transition:opacity .32s ease,transform .32s ease;transform:translateY(18px);z-index:1;overflow:hidden}
+.page.active{opacity:1;visibility:visible;transform:translateY(0)}
+#coverPage{opacity:1;visibility:visible;transform:translateY(0)}
+.scroll-box{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+.scroll-box::-webkit-scrollbar{display:none}
+
+/* ── COVER ── */
+#coverPage{background:var(--bg)}
+.cv-inner{padding:48px 18px 20px}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:11px;letter-spacing:1.5px;
+  text-transform:uppercase;color:var(--grd);background:var(--grl);
+  border:1px solid rgba(16,185,129,.3);padding:5px 13px;border-radius:20px;
+  font-family:var(--nm);font-weight:800;margin-bottom:18px}
+.chip::before{content:'●';animation:blink 1.5s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.hero-box{background:linear-gradient(135deg,#ECFDF5 0%,#EFF6FF 100%);
+  border:1.5px solid #A7F3D0;border-radius:22px;padding:24px 18px;text-align:center;margin-bottom:16px}
+.hero-chars{display:flex;justify-content:center;align-items:flex-end;gap:6px;margin-bottom:14px}
+.hc{display:inline-block;animation:hcf 3s ease-in-out infinite}
+.hc:nth-child(2){animation-delay:.4s}.hc:nth-child(3){animation-delay:.8s}
+.hc:nth-child(4){animation-delay:1.2s}.hc:nth-child(5){animation-delay:1.6s}
+@keyframes hcf{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+.cv-title{font-size:25px;font-weight:900;line-height:1.2;margin-bottom:7px}
+.cv-title span{color:var(--gr)}
+.cv-sub{font-size:13.5px;color:var(--td);line-height:1.7;margin-bottom:14px}
+.count-pill{display:inline-flex;align-items:center;gap:5px;background:#fff;
+  border:1px solid var(--br);border-radius:20px;padding:6px 13px;
+  font-size:13px;color:var(--t2);box-shadow:0 1px 4px var(--sh)}
+.count-pill b{color:var(--gr);font-family:var(--nm)}
+.intro-card{background:#fff;border:1px solid var(--br);border-radius:var(--rx);
+  padding:16px 16px 14px;margin-bottom:14px;box-shadow:0 2px 10px var(--sh)}
+.intro-hook{font-size:13px;font-weight:700;color:var(--tx);margin-bottom:11px}
+.intro-tiers{display:flex;gap:8px;margin-bottom:13px}
+.it{flex:1;text-align:center;border-radius:12px;padding:10px 5px}
+.it.g{background:#ECFDF5;border:1.5px solid #A7F3D0}
+.it.m{background:#FFFBEB;border:1.5px solid #FDE68A}
+.it.b{background:#FFF1F2;border:1.5px solid #FECACA}
+.it .ie{font-size:22px;display:block;margin-bottom:4px}
+.it .il{font-size:11px;font-weight:700;display:block;margin-bottom:2px}
+.it.g .il{color:#059669}.it.m .il{color:#B45309}.it.b .il{color:#B91C1C}
+.it .is{font-size:10px;color:var(--td);display:block}
+.intro-meta{font-size:12px;color:var(--td);text-align:center;line-height:1.7}
+.dim-row{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:22px}
+.dc{font-size:12px;padding:5px 13px;border-radius:14px;font-weight:700}
+.dc.ca{background:#D1FAE5;color:#059669}.dc.th{background:#DBEAFE;color:#1D4ED8}
+.dc.ha{background:#FEF3C7;color:#B45309}.dc.le{background:#FCE7F3;color:#BE185D}
+.start-btn{width:100%;padding:17px;background:linear-gradient(135deg,var(--grd),var(--gr));
+  color:#fff;border:none;border-radius:15px;font-size:16px;font-weight:900;
+  font-family:var(--fn);cursor:pointer;box-shadow:0 4px 18px rgba(16,185,129,.35);
+  transition:transform .2s,box-shadow .2s;letter-spacing:.5px}
+.start-btn:active{transform:scale(.97);box-shadow:0 2px 8px rgba(16,185,129,.2)}
+.cv-footer{display:flex;gap:9px;padding:12px 18px calc(12px + env(safe-area-inset-bottom));
+  background:#fff;border-top:1px solid var(--br);box-shadow:0 -2px 10px var(--sh)}
+.cv-nav{flex:1;padding:13px;background:var(--s1);border:1.5px solid var(--br);
+  border-radius:13px;color:var(--t2);font-size:13.5px;font-family:var(--fn);
+  font-weight:700;cursor:pointer;transition:all .2s}
+.cv-nav:active{background:var(--grl);border-color:var(--gr);color:var(--grd)}
+
+/* ── QUESTION ── */
+#questionPage{background:var(--bg)}
+.q-bar{padding:48px 18px 12px;background:#fff;border-bottom:1px solid var(--br);
+  box-shadow:0 2px 8px var(--sh);flex-shrink:0}
+.q-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px}
+.q-num{font-family:var(--nm);font-size:14px;font-weight:900;color:var(--gr)}
+.q-pill{font-size:11px;padding:3px 11px;border-radius:11px;font-weight:700}
+.q-prog{width:100%;height:6px;background:var(--s2);border-radius:3px;overflow:hidden}
+#progressFill{height:100%;background:linear-gradient(90deg,var(--grd),var(--gr));
+  border-radius:3px;transition:width .5s cubic-bezier(.4,0,.2,1)}
+.q-dots{display:flex;gap:4px;margin-top:8px;flex-wrap:wrap}
+.q-dot{width:6px;height:6px;border-radius:3px;background:var(--br);transition:all .3s}
+.q-dot.done{background:var(--gr);width:14px}
+.q-dot.cur{background:var(--am);width:14px}
+.q-body{flex:1;overflow-y:auto;padding:18px;-webkit-overflow-scrolling:touch}
+.q-text{font-size:18px;font-weight:700;line-height:1.5;color:var(--tx);margin-bottom:5px}
+.q-hint{font-size:12.5px;color:var(--td);line-height:1.6;margin-bottom:16px}
+.opt{display:flex;align-items:center;gap:11px;padding:13px 15px;background:#fff;
+  border:2px solid var(--br);border-radius:13px;cursor:pointer;margin-bottom:9px;
+  transition:all .2s;animation:oslide .28s both;box-shadow:0 1px 4px var(--sh)}
+@keyframes oslide{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
+.opt:nth-child(1){animation-delay:.03s}.opt:nth-child(2){animation-delay:.07s}
+.opt:nth-child(3){animation-delay:.11s}.opt:nth-child(4){animation-delay:.15s}
+.opt:nth-child(5){animation-delay:.19s}.opt:nth-child(6){animation-delay:.23s}
+.opt:nth-child(7){animation-delay:.27s}.opt:nth-child(8){animation-delay:.31s}
+.opt.sel{border-color:var(--gr);background:var(--grl);box-shadow:0 2px 12px rgba(16,185,129,.2)}
+.opt:active{transform:scale(.985)}
+.on{width:30px;height:30px;border-radius:50%;background:var(--s2);border:1.5px solid var(--br);
+  display:flex;align-items:center;justify-content:center;font-family:var(--nm);
+  font-size:12px;font-weight:800;color:var(--td);flex-shrink:0;transition:all .2s}
+.opt.sel .on{background:var(--gr);color:#fff;border-color:var(--gr)}
+.ot{font-size:14px;color:var(--tx);flex:1;line-height:1.4}
+.opt.sel .ot{color:var(--grd);font-weight:600}
+.q-foot{display:flex;gap:9px;padding:11px 18px calc(11px + env(safe-area-inset-bottom));
+  background:#fff;border-top:1px solid var(--br);box-shadow:0 -2px 8px var(--sh);flex-shrink:0}
+.qnb{flex:1;padding:14px;border-radius:13px;font-size:14.5px;font-weight:700;
+  font-family:var(--fn);cursor:pointer;transition:all .2s;border:none}
+.qnb.prev{background:var(--s1);color:var(--t2);border:1.5px solid var(--br)}
+.qnb.next{background:linear-gradient(135deg,var(--grd),var(--gr));color:#fff;
+  box-shadow:0 3px 12px rgba(16,185,129,.3)}
+.qnb:disabled{opacity:.35;cursor:not-allowed}
+.qnb:not(:disabled):active{transform:scale(.97)}
+
+/* ── LOADING ── */
+#loadingPage{background:var(--bg);justify-content:center;align-items:center;gap:18px;padding:40px}
+.load-anim{animation:lspin 2s ease-in-out infinite;filter:drop-shadow(0 8px 20px rgba(16,185,129,.25))}
+@keyframes lspin{0%,100%{transform:scale(1) rotate(-3deg)}50%{transform:scale(1.06) rotate(3deg)}}
+.load-lbl{font-family:var(--nm);font-size:11px;letter-spacing:3px;text-transform:uppercase;
+  color:var(--gr);font-weight:800}
+#loadingText{font-size:16px;font-weight:700;text-align:center;line-height:1.6;
+  color:var(--tx);min-height:2.5em}
+.load-track{width:100%;max-width:270px;height:8px;background:var(--s2);border-radius:4px;overflow:hidden}
+#loadingProgress{height:100%;width:0;background:linear-gradient(90deg,var(--grd),var(--gr));
+  border-radius:4px;transition:width .4s ease;box-shadow:0 0 8px rgba(16,185,129,.4)}
+#loadingPct{font-family:var(--nm);font-size:28px;font-weight:900;color:var(--gr)}
+
+/* ── COMPLETE ── */
+#completePopup{background:rgba(255,251,245,.94);backdrop-filter:blur(14px);
+  justify-content:center;align-items:center}
+.cpl-card{background:#fff;border:1.5px solid var(--br);border-radius:26px;padding:34px 22px;
+  text-align:center;width:88%;box-shadow:0 14px 50px var(--sh);
+  animation:cpop .42s cubic-bezier(.17,.67,.35,1.3) both}
+@keyframes cpop{from{transform:scale(.75);opacity:0}to{transform:scale(1);opacity:1}}
+.cpl-ico{font-size:60px;display:block;margin-bottom:12px;animation:cbounce 1s ease infinite}
+@keyframes cbounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-11px)}}
+.cpl-card h2{font-size:23px;font-weight:900;margin-bottom:7px}
+.cpl-card p{font-size:13.5px;color:var(--td);margin-bottom:22px;line-height:1.6}
+.pop-cta{width:100%;padding:15px;background:linear-gradient(135deg,var(--grd),var(--gr));
+  color:#fff;border:none;border-radius:13px;font-size:15px;font-weight:900;
+  font-family:var(--fn);cursor:pointer;box-shadow:0 4px 15px rgba(16,185,129,.35);transition:transform .2s}
+.pop-cta:active{transform:scale(.97)}
+
+/* ── RESULT ── */
+#resultPage{background:var(--bg)}
+.res-scroll{flex:1;overflow-y:auto;padding:56px 15px 14px}
+.res-scroll::-webkit-scrollbar{display:none}
+
+.char-card{border-radius:22px;padding:22px 18px;text-align:center;margin-bottom:12px;position:relative;overflow:hidden}
+.char-card.low{background:linear-gradient(135deg,#ECFDF5,#EFF6FF);border:1.5px solid #A7F3D0}
+.char-card.medium{background:linear-gradient(135deg,#FFFBEB,#FEF3C7);border:1.5px solid #FDE68A}
+.char-card.high{background:linear-gradient(135deg,#FFF1F2,#FEE2E2);border:1.5px solid #FECACA}
+#charArt{display:flex;justify-content:center;margin-bottom:12px;
+  animation:chrf 3s ease-in-out infinite;filter:drop-shadow(0 6px 14px rgba(0,0,0,.12))}
+@keyframes chrf{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+#charName{font-size:19px;font-weight:900;margin-bottom:5px;color:var(--tx)}
+#charTag{font-size:13px;color:var(--td)}
+
+.ring-card{background:#fff;border:1.5px solid var(--br);border-radius:18px;padding:18px;
+  text-align:center;margin-bottom:11px;box-shadow:0 2px 10px var(--sh)}
+.card-lbl{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--td);
+  font-family:var(--nm);font-weight:800;margin-bottom:14px}
+.ring-svg{width:145px;height:145px}
+.ring-bg{fill:none;stroke:var(--s2);stroke-width:13}
+.ring-fill{fill:none;stroke-width:13;stroke-linecap:round;
+  transform:rotate(-90deg);transform-origin:50% 50%;
+  transition:stroke-dashoffset 2s cubic-bezier(.4,0,.2,1),stroke .4s}
+.ring-num{font-family:'Nunito',sans-serif;font-size:28px;font-weight:900;fill:var(--tx)}
+.ring-sub{font-size:11px;fill:var(--td)}
+.risk-badge{display:inline-block;margin-top:11px;padding:5px 17px;border-radius:18px;
+  font-size:13.5px;font-weight:700}
+.risk-badge.low{background:var(--grl);color:var(--grd)}
+.risk-badge.medium{background:var(--aml);color:#B45309}
+.risk-badge.high{background:var(--rdl);color:#B91C1C}
+
+.dims-card{background:#fff;border:1.5px solid var(--br);border-radius:18px;padding:16px;
+  margin-bottom:11px;box-shadow:0 2px 10px var(--sh)}
+.dr{margin-bottom:13px}
+.dr:last-child{margin-bottom:0}
+.dl{display:flex;justify-content:space-between;margin-bottom:5px}
+.dn{font-size:12.5px;color:var(--t2)}.dv{font-family:var(--nm);font-size:12.5px;font-weight:800}
+.dv.ca{color:var(--grd)}.dv.th{color:#1D4ED8}.dv.ha{color:#B45309}.dv.le{color:#BE185D}
+.dtr{height:7px;background:var(--s2);border-radius:3.5px;overflow:hidden}
+.db{height:100%;width:0;border-radius:3.5px;transition:width 1.2s cubic-bezier(.4,0,.2,1)}
+.db.ca{background:linear-gradient(90deg,#059669,#10B981)}
+.db.th{background:linear-gradient(90deg,#1D4ED8,#3B82F6)}
+.db.ha{background:linear-gradient(90deg,#B45309,#F59E0B)}
+.db.le{background:linear-gradient(90deg,#BE185D,#EC4899)}
+
+/* ── RESULT TOPBAR ── */
+.res-topbar{position:absolute;top:0;left:0;right:0;
+  padding:calc(env(safe-area-inset-top,0px) + 10px) 15px 10px;
+  display:flex;align-items:center;z-index:10;
+  background:linear-gradient(180deg,rgba(255,251,245,1) 55%,rgba(255,251,245,0));
+  pointer-events:none}
+.res-back{pointer-events:all;width:36px;height:36px;background:#fff;
+  border:1.5px solid var(--br);border-radius:11px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:17px;color:var(--tx);cursor:pointer;transition:all .2s;
+  box-shadow:0 2px 8px var(--sh);flex-shrink:0}
+.res-back:active{background:var(--grl);border-color:var(--gr);color:var(--grd)}
+
+/* ── REPORT PANEL (unified analysis block) ── */
+.report-panel{background:#fff;border:1.5px solid var(--br);border-radius:18px;
+  overflow:hidden;margin-bottom:11px;box-shadow:0 2px 10px var(--sh)}
+.rps{padding:15px 16px}
+.rp-div{height:1px;background:var(--br)}
+.rps-head{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+.rps-ico{font-size:17px;line-height:1}
+.rps-ttl{font-size:13.5px;font-weight:900;color:var(--tx)}
+.report-panel p{font-size:13px;color:var(--t2);line-height:1.95;white-space:pre-line}
+.report-panel .anote{font-size:11.5px;color:var(--td);margin-top:9px;padding-top:9px;
+  border-top:1px dashed var(--br);font-style:italic}
+
+.res-foot{padding:11px 15px calc(11px + env(safe-area-inset-bottom));background:#fff;
+  border-top:1px solid var(--br);box-shadow:0 -2px 10px var(--sh);flex-shrink:0}
+.act-pri{width:100%;padding:15px;margin-bottom:7px;
+  background:linear-gradient(135deg,var(--grd),var(--gr));color:#fff;
+  border:none;border-radius:13px;font-size:15px;font-weight:900;font-family:var(--fn);
+  cursor:pointer;box-shadow:0 3px 12px rgba(16,185,129,.3);transition:transform .2s}
+.act-pri:active{transform:scale(.97)}
+.act-ghost{width:100%;padding:11px;background:transparent;border:none;
+  color:var(--td);font-size:13.5px;font-family:var(--fn);cursor:pointer;text-decoration:underline}
+
+/* ── SHARE ── */
+#sharePopup{position:fixed;inset:0;background:rgba(0,0,0,.4);display:flex;
+  justify-content:center;align-items:flex-end;z-index:9999;
+  opacity:0;visibility:hidden;transition:all .28s;backdrop-filter:blur(4px)}
+#sharePopup.active{opacity:1;visibility:visible}
+.share-sheet{background:#fff;width:100%;border-radius:22px 22px 0 0;
+  padding:18px 18px calc(18px + env(safe-area-inset-bottom));
+  box-shadow:0 -4px 22px var(--sh);animation:sUp .3s cubic-bezier(.4,0,.2,1) both}
+@keyframes sUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.sh-handle{width:34px;height:4px;background:var(--br);border-radius:2px;margin:0 auto 16px}
+.sh-title{font-size:16px;font-weight:900;margin-bottom:13px}
+.sh-opt{width:100%;padding:14px;background:var(--s1);border:1.5px solid var(--br);
+  border-radius:12px;color:var(--tx);font-size:14px;font-family:var(--fn);font-weight:600;
+  cursor:pointer;margin-bottom:9px;transition:all .2s;text-align:left}
+.sh-opt:active{background:var(--grl);border-color:var(--gr);color:var(--grd)}
+.sh-cancel{width:100%;padding:12px;background:transparent;border:none;
+  color:var(--td);font-size:14px;font-family:var(--fn);cursor:pointer}
+
+/* ── REPORT PAGE ── */
+#reportPage{background:var(--bg)}
+.rp-bar{display:flex;align-items:center;gap:11px;padding:48px 18px 14px;background:#fff;
+  border-bottom:1px solid var(--br);box-shadow:0 2px 8px var(--sh);flex-shrink:0}
+.back-btn{width:36px;height:36px;background:var(--s1);border:1.5px solid var(--br);
+  border-radius:11px;display:flex;align-items:center;justify-content:center;
+  font-size:17px;color:var(--tx);cursor:pointer;transition:all .2s}
+.back-btn:active{background:var(--grl);border-color:var(--gr);color:var(--grd)}
+.rp-title{font-size:17px;font-weight:900}
+.rp-list{flex:1;overflow-y:auto;padding:13px 18px}
+.rp-card{background:#fff;border:1.5px solid var(--br);border-radius:14px;padding:14px;
+  margin-bottom:11px;box-shadow:0 2px 8px var(--sh);animation:oslide .28s both}
+.rp-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px}
+.rp-date{font-size:11px;color:var(--td);font-family:var(--nm)}
+.rp-score{font-family:var(--nm);font-size:21px;font-weight:900;color:var(--gr)}
+.rp-lvl{font-size:13.5px;font-weight:700;margin-bottom:9px}
+.rp-dims{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.rp-dim{font-size:11px;color:var(--td)}
+.no-rpt{text-align:center;padding:55px 18px;color:var(--td)}
+.no-rpt .ico{font-size:44px;display:block;margin-bottom:11px}
+
+/* ── TOAST ── */
+#toast{position:fixed;bottom:76px;left:50%;transform:translateX(-50%);
+  background:var(--tx);color:#fff;padding:9px 18px;border-radius:18px;
+  font-size:13.5px;font-family:var(--fn);z-index:99999;opacity:0;
+  transition:opacity .28s;white-space:nowrap;pointer-events:none;
+  box-shadow:0 4px 14px rgba(0,0,0,.2)}
+#toast.show{opacity:1}
+
+/* ── CONFETTI ── */
+.conf-wrap{position:fixed;inset:0;pointer-events:none;z-index:9998;overflow:hidden}
+.cp{position:absolute;animation:cpfall linear forwards;border-radius:2px}
+@keyframes cpfall{0%{transform:translateY(-10px) rotate(0deg);opacity:1}
+  100%{transform:translateY(110vh) rotate(720deg);opacity:0}}
+
+/* ── GAME ENTRY BUTTON ── */
+.game-entry-btn{display:flex;align-items:center;gap:4px;padding:7px 12px;
+  background:linear-gradient(135deg,#B91C1C,#EF4444);color:#fff;border:none;
+  border-radius:11px;font-size:12px;font-weight:900;font-family:var(--fn);
+  cursor:pointer;animation:gePulse 2s ease-in-out infinite;pointer-events:all;
+  box-shadow:0 2px 10px rgba(239,68,68,.5);white-space:nowrap;line-height:1}
+@keyframes gePulse{0%,100%{box-shadow:0 2px 10px rgba(239,68,68,.4)}
+  50%{box-shadow:0 0 0 4px rgba(239,68,68,.18),0 2px 16px rgba(239,68,68,.7)}}
+.game-entry-btn:active{transform:scale(.92)}
+
+/* ── GAME PAGE ── */
+#gamePage{background:#0a0a18}
+#gameCanvas{display:block;position:absolute;inset:0;width:100%;height:100%;cursor:crosshair}
+.gm-bar{position:absolute;top:0;left:0;right:0;z-index:20;
+  padding:calc(env(safe-area-inset-top,0px)+10px) 15px 10px;
+  display:flex;justify-content:space-between;align-items:center;
+  background:linear-gradient(180deg,rgba(10,10,24,.92) 60%,transparent);
+  pointer-events:none}
+.gm-back{pointer-events:all;width:36px;height:36px;background:rgba(255,255,255,.1);
+  border:1.5px solid rgba(255,255,255,.18);border-radius:11px;
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;font-size:17px;cursor:pointer;transition:all .2s;flex-shrink:0}
+.gm-back:active{background:rgba(255,255,255,.25);border-color:rgba(255,255,255,.4)}
+.gm-title{font-size:15px;font-weight:900;color:#fff;text-align:center;flex:1;
+  text-shadow:0 0 12px rgba(239,68,68,.6)}
+.gm-stat{pointer-events:none;text-align:right;flex-shrink:0}
+.gm-stat-lbl{font-size:10px;color:rgba(255,255,255,.5);font-family:var(--nm);
+  font-weight:700;letter-spacing:.5px;text-transform:uppercase;display:block}
+.gm-stat-val{font-family:var(--nm);font-size:18px;font-weight:900;color:#FFD700;
+  display:block;line-height:1;text-shadow:0 0 8px rgba(255,215,0,.5)}
+</style>
+</head>
+<body>
+<div id="toast"></div>
+
+<!-- COVER -->
+<div class="page" id="coverPage">
+  <div class="scroll-box">
+    <div class="cv-inner">
+      <div class="chip">🔬 职业免疫力检测系统 v3.0</div>
+      <div class="hero-box">
+        <div class="hero-chars" id="heroChars"></div>
+        <h1 class="cv-title">AI替我打工<span>评估器</span></h1>
+        <p class="cv-sub">3分钟答题，AI 用一整套报告<br>告诉你它有多想抢你的工作</p>
+        <div class="count-pill">🌍 已有 <b id="userCount">1247</b> 人收到了「战书」</div>
+      </div>
+      <div class="intro-card">
+        <p class="intro-hook">🧪 把你的工作扔进「AI检测仪」，它会判定你是——</p>
+        <div class="intro-tiers">
+          <div class="it g"><span class="ie">🦁</span><span class="il">稀世珍宝</span><span class="is">AI：我学不来</span></div>
+          <div class="it m"><span class="ie">🐧</span><span class="il">混沌生物</span><span class="is">AI：我在努力</span></div>
+          <div class="it b"><span class="ie">🐑</span><span class="il">量产标品</span><span class="is">AI：下周上线</span></div>
+        </div>
+        <p class="intro-meta">15 道灵魂拷问 · 4 个维度 · 1 个专属像素小人<br>外加若干个「啊这……」的顿悟时刻</p>
+      </div>
+      <div class="dim-row">
+        <span class="dc ca">💼 职业属性</span>
+        <span class="dc th">🧠 思维方式</span>
+        <span class="dc ha">⚡ 工作习惯</span>
+        <span class="dc le">📚 学习方式</span>
+      </div>
+      <button class="start-btn" id="startBtn">🚀 开始测评</button>
+    </div>
+  </div>
+  <div class="cv-footer">
+    <button class="cv-nav" id="testBtn">📝 重新测试</button>
+    <button class="cv-nav" id="reportBtn">📊 历史报告</button>
+  </div>
+</div>
+
+<!-- QUESTION -->
+<div class="page" id="questionPage">
+  <div class="q-bar">
+    <div class="q-meta">
+      <span class="q-num" id="qNum">01 / 15</span>
+      <span class="q-pill" id="qPill">职业属性</span>
+    </div>
+    <div class="q-prog"><div id="progressFill"></div></div>
+    <div class="q-dots" id="qDots"></div>
+  </div>
+  <div class="q-body scroll-box">
+    <div class="q-text" id="qText"></div>
+    <div class="q-hint" id="qHint"></div>
+    <div id="optsBox"></div>
+  </div>
+  <div class="q-foot">
+    <button class="qnb prev" id="prevBtn" disabled>← 上一题</button>
+    <button class="qnb next" id="nextBtn" disabled>下一题 →</button>
+  </div>
+</div>
+
+<!-- LOADING -->
+<div class="page" id="loadingPage">
+  <div class="load-anim" id="loadChar"></div>
+  <div class="load-lbl">AI ANALYZING . . .</div>
+  <div id="loadingText">正在分析你的职业命数...</div>
+  <div class="load-track"><div id="loadingProgress"></div></div>
+  <div id="loadingPct">0%</div>
+</div>
+
+<!-- COMPLETE -->
+<div class="page" id="completePopup">
+  <div class="cpl-card">
+    <span class="cpl-ico">🎉</span>
+    <h2>答题完成！</h2>
+    <p>你的 AI 替代风险报告即将揭晓<br>做好心理准备了吗？</p>
+    <button class="pop-cta" id="viewResultBtn">提交并查看结果 →</button>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div class="page" id="resultPage">
+  <div class="res-topbar" style="justify-content:space-between">
+    <button class="res-back" id="resultBackBtn">←</button>
+    <button class="game-entry-btn" id="gameEntryBtn">💢 暴打AI</button>
+  </div>
+  <div class="res-scroll scroll-box">
+    <div class="char-card" id="charCard">
+      <div id="charArt"></div>
+      <div id="charName">计算中...</div>
+      <div id="charTag"></div>
+    </div>
+    <div class="ring-card">
+      <div class="card-lbl">AI 替代风险指数</div>
+      <svg class="ring-svg" viewBox="0 0 145 145">
+        <circle class="ring-bg" cx="72.5" cy="72.5" r="59"/>
+        <circle class="ring-fill" id="ringFill" cx="72.5" cy="72.5" r="59"
+          stroke="#10B981" stroke-dasharray="370.7" stroke-dashoffset="370.7"/>
+        <text class="ring-num" x="72.5" y="67" text-anchor="middle" dominant-baseline="middle">
+          <tspan id="riskPct">0%</tspan>
+        </text>
+        <text class="ring-sub" x="72.5" y="91" text-anchor="middle">风险指数</text>
+      </svg>
+      <br>
+      <span class="risk-badge" id="riskBadge">计算中...</span>
+    </div>
+    <div class="dims-card">
+      <div class="card-lbl" style="margin-bottom:13px">维度危险值分析</div>
+      <div class="dr"><div class="dl"><span class="dn">💼 职业属性</span><span class="dv ca" id="vca">0%</span></div><div class="dtr"><div class="db ca" id="bca"></div></div></div>
+      <div class="dr"><div class="dl"><span class="dn">🧠 思维方式</span><span class="dv th" id="vth">0%</span></div><div class="dtr"><div class="db th" id="bth"></div></div></div>
+      <div class="dr"><div class="dl"><span class="dn">⚡ 工作习惯</span><span class="dv ha" id="vha">0%</span></div><div class="dtr"><div class="db ha" id="bha"></div></div></div>
+      <div class="dr"><div class="dl"><span class="dn">📚 学习方式</span><span class="dv le" id="vle">0%</span></div><div class="dtr"><div class="db le" id="ble"></div></div></div>
+    </div>
+
+    <!-- Unified Analysis Panel -->
+    <div class="report-panel">
+      <div class="rps">
+        <div class="rps-head"><span class="rps-ico">🏥</span><span class="rps-ttl">AI 诊断书</span></div>
+        <p id="tDiag"></p>
+      </div>
+      <div class="rp-div"></div>
+      <div class="rps">
+        <div class="rps-head"><span class="rps-ico">💀</span><span class="rps-ttl">AI 的原话（节选）</span></div>
+        <p id="tAI"></p>
+      </div>
+      <div class="rp-div"></div>
+      <div class="rps">
+        <div class="rps-head"><span class="rps-ico">🛡️</span><span class="rps-ttl">你的人类专属优势</span></div>
+        <p id="tHuman"></p>
+      </div>
+      <div class="rp-div"></div>
+      <div class="rps">
+        <div class="rps-head"><span class="rps-ico">📋</span><span class="rps-ttl">生存指南（建议截图收藏）</span></div>
+        <p id="tSug"></p>
+        <p class="anote" id="tNote"></p>
+      </div>
+    </div>
+
+  </div>
+  <div class="res-foot">
+    <button class="act-pri" id="shareResultBtn">📤 分享我的结果</button>
+    <button class="act-ghost" id="restartBtn">再测一次</button>
+  </div>
+</div>
+
+<!-- SHARE -->
+<div id="sharePopup">
+  <div class="share-sheet">
+    <div class="sh-handle"></div>
+    <div class="sh-title">分享你的结果 🎯</div>
+    <button class="sh-opt" id="shareToFriend">📲 发给好友 / 晒朋友圈</button>
+    <button class="sh-opt" id="copyLink">🔗 复制链接</button>
+    <button class="sh-cancel" id="closeShareBtn">取消</button>
+  </div>
+</div>
+
+<!-- REPORT PAGE -->
+<div class="page" id="reportPage">
+  <div class="rp-bar">
+    <button class="back-btn" id="backToCover">←</button>
+    <span class="rp-title">历史测试报告</span>
+  </div>
+  <div class="rp-list scroll-box" id="reportList">
+    <div class="no-rpt"><span class="ico">📭</span>暂无记录<br>快去完成第一次测评吧！</div>
+  </div>
+</div>
+
+<!-- GAME PAGE -->
+<div class="page" id="gamePage">
+  <canvas id="gameCanvas"></canvas>
+  <div class="gm-bar">
+    <button class="gm-back" id="gameBackBtn">←</button>
+    <div class="gm-title">💢 暴打 AI</div>
+    <div class="gm-stat">
+      <span class="gm-stat-lbl">最高连击</span>
+      <span class="gm-stat-val" id="maxComboDisplay">0</span>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════
+//  PIXEL ART ENGINE
+// ═══════════════════════════════════
+function renderChar(charDef, px) {
+  const {pal, rows} = charDef;
+  const W = 16, H = rows.length;
+  let rects = '';
+  rows.forEach((row, r) => {
+    const pr = row.padEnd(W, '.').substring(0, W);
+    for (let c = 0; c < W; c++) {
+      const col = pal[pr[c]];
+      if (!col) continue;
+      rects += `<rect x="${c*px}" y="${r*px}" width="${px}" height="${px}" fill="${col}"/>`;
+    }
+  });
+  const s = document.createElementNS('http://www.w3.org/2000/svg','svg');
+  s.setAttribute('viewBox',`0 0 ${W*px} ${H*px}`);
+  s.setAttribute('width', W*px); s.setAttribute('height', H*px);
+  s.innerHTML = rects;
+  return s;
+}
+
+// ═══════════════════════════════════
+//  5 PIXEL ART CHARACTERS  (16×20)
+// ═══════════════════════════════════
+const CHARS = [
+  // ─ 0: KNIGHT 人类堡垒守卫者 (0–25%)
+  { name:'人类堡垒守卫者', tag:'铜墙铁壁，AI 无可奈何', risk:'low',
+    pal:{K:'#1a1a2e',G:'#FFD700',S:'#FDBCB4',A:'#60A5FA',D:'#1D4ED8',
+         g:'#34D399',d:'#047857',R:'#EF4444',e:'#1F2937',s:'#F87171',W:'#fff'},
+    rows:[
+      "....KGGGKGGGK...",
+      "....KGRGKGRGK...",
+      ".....KGGGGGK....",
+      ".....KSSSSSK....",
+      ".....KSeSeKK....",
+      ".....KSSSSKK....",
+      "......KsKsK.....",
+      "....KAAAAAKK....",
+      "...KgggKAAAAKK..",
+      "...KgdgKAAAAKK..",
+      "...KgggKAAAAKK..",
+      "...KgdgKAAAAKK..",
+      "...KgggKAAAAKK..",
+      "....KAAAAAAKK...",
+      "....KDAAAADK....",
+      "....KAAK.KAK....",
+      "....KAAK.KAK....",
+      "...KDDAKK.KADDK.",
+      "...KDDK....KDDK.",
+      "..KDDDK....KDDDK",
+    ]},
+
+  // ─ 1: CYBORG 半人半AI形态 (26–45%)
+  { name:'半人半 AI 形态', tag:'人机合一，天下无敌', risk:'low',
+    pal:{K:'#1a1a2e',S:'#FDBCB4',H:'#4A2800',M:'#B2BEC3',C:'#636E72',
+         Y:'#FDCB6E',B:'#3B82F6',e:'#1F2937',c:'#00CEC9',R:'#10B981'},
+    rows:[
+      "....HHHHHMHH....",
+      "....HHHKKMHK....",
+      ".....KSSSMMMK...",
+      ".....KSeKCMKK...",
+      ".....KSSSMMMK...",
+      "......KSSKMMK...",
+      "....KKSSMMMKKK..",
+      "...KBBBMMMMMKK..",
+      "...KYBBKMcMKKK..",
+      "...KBBBKMMMKK...",
+      "...KBBBKMMMKK...",
+      "....KBBMMKK.....",
+      "....KBBMMKK.....",
+      ".....KBMK.......",
+      "....KBK.KMK.....",
+      "....KBK.KMK.....",
+      "....KBK.KMK.....",
+      "...KBBKK.KMMK...",
+      "...KBBK...KMMK..",
+      "...KBK.....KMK..",
+    ]},
+
+  // ─ 2: STRESSED WORKER 进化紧迫症患者 (46–65%)
+  { name:'进化紧迫症患者', tag:'破茧成蝶，还是被拍扁？', risk:'medium',
+    pal:{K:'#1a1a2e',S:'#FDBCB4',W:'#FFFFFF',T:'#3B82F6',Y:'#FBBF24',
+         c:'#92400E',b:'#D97706',e:'#1F2937',h:'#7C3AED',B:'#374151',s:'#F87171'},
+    rows:[
+      "....KhhhhhhKK...",
+      "....KhhhhhhKK...",
+      "..YY.KSSSSSK....",
+      "..Y..KSeSeKK.Y..",
+      ".....KSSSSKK....",
+      "......KsKsK.Y...",
+      "....KWWWWWWKK...",
+      "..KcKWWTWWWKKK..",
+      "..KcKWWTWWWKKK..",
+      "..KbKWTTKWWKKK..",
+      "..KbKWTTKWWKKK..",
+      "..KcKKWWWWKK....",
+      "....KWWWWWWKK...",
+      "....KWWWWWKK....",
+      ".....KWWWKK.....",
+      ".....KWK.KWK....",
+      ".....KWK.KWK....",
+      "....KBBKK.KBBKK.",
+      "....KBBK...KBBK.",
+      "....KBK.....KBK.",
+    ]},
+
+  // ─ 3: BOX CARRIER 赛博待业预备役 (66–80%)
+  { name:'赛博待业预备役', tag:'燃烧吧，我的简历！', risk:'high',
+    pal:{K:'#1a1a2e',S:'#FDBCB4',W:'#FFFFFF',b:'#D4A574',B:'#92400E',
+         P:'#A78BFA',c:'#EF4444',T:'#93C5FD',e:'#1F2937',D:'#374151',s:'#F87171'},
+    rows:[
+      ".....KSSSSKk....",
+      ".....KSeSeKK....",
+      "...T.KSSSSKK....",
+      "......KsKsK.....",
+      ".....KWWWWK.....",
+      "..KbbbbbbbbbbK..",
+      "..KbBBBBBBBBbK..",
+      "..KbBPBBBcBBbK..",
+      "..KbBPBBBcBBbK..",
+      "..KbBBBBBBBBbK..",
+      "..KbBBBBBBBBbK..",
+      "..KbbbbbbbbbbK..",
+      "...KKKKKKKKKK...",
+      "....KWWWWWWKK...",
+      ".....KWWWWK.....",
+      ".....KWK.KWK....",
+      ".....KWK.KWK....",
+      "....KDDKK.KDDKK.",
+      "....KDDK...KDDK.",
+      "....KDK.....KDK.",
+    ]},
+
+  // ─ 4: ZOMBIE 精神状态气象局永久居民 (81–100%)
+  { name:'精神状态气象局永久居民', tag:'此地是我家，AI 请绕道', risk:'high',
+    pal:{K:'#1a1a2e',Z:'#A8EDDD',g:'#C7D9D4',T:'#636E72',R:'#EF4444',
+         W:'#F5F5F5',t:'#4A5568',e:'#1a1a2e'},
+    rows:[
+      "......KgZgZK....",
+      ".....KZZZZgZZK..",
+      "....KZZgZZgZZZK.",
+      "....KZR.RZZR.RZK",
+      "....KZ.R.ZZZ.R.K",
+      "....KZR.RZZR.RZK",
+      "....KZRRRRRRRZKK",
+      "....KKWWWWWWWKKK",
+      "....KtTTTTTTtKK.",
+      "...KTTTTTTTTTTK.",
+      "KT.KTTTTTTTTK.KT",
+      ".KT.KTTTTTTK.KT.",
+      "....KTTTTTTTKKK.",
+      "....KTtTtTtKKK..",
+      "....KTTTTTTKKK..",
+      ".....KTTTTK.....",
+      ".....KTK.KTK....",
+      "....KTTKK.KTTKK.",
+      "....KTTK...KTTK.",
+      "....KTK.....KTK.",
+    ]},
+];
+
+// ═══════════════════════════════════
+//  DETAILED HUMOROUS ANALYSES
+// ═══════════════════════════════════
+const ANALYSIS = [
+  { // 0: Knight (0-25%)
+    diag:`经过精密扫描，你的档案已被转交至「AI奈何委员会」存档。委员会主席——一个拥有万亿参数的大模型——叹了口气说：「这个不好搞。」这是它能给出的最高规格认可。
+
+补充说明：有 ${Math.floor(Math.random()*3)+2} 个初创公司的 AI 产品，在尝试替代你之后，选择了转行或重新创业。`,
+    ai:`「我研究了你的工作内容六个月，然后决定改行去写诗。
+
+你的工作里充满了情感智能、深度判断和人际博弈——这些不是算力能解决的问题。不是我不想替代你，是我真的做不到。你每次跟甲方聊天时那种「心中有数但脸上淡定」的状态，我模拟了 3000 次，全部失败。
+
+算了，我去帮别人写 PPT。」`,
+    human:`你是当今职场的「活化石」——不是说你老，是说你稀缺。
+
+① 你的核心价值来自「隐性知识」：说不清楚但就是知道怎么做，这种东西 AI 学不来。
+② 你有真实的人际关系网络，而 AI 的「关系」只是预测下一个词。
+③ 你能在复杂局面中做出带有「责任感」的决定，这是任何大模型目前都不敢承诺的。`,
+    sug:`① 把护城河越挖越深——专注建立只有你才能提供的专业判断和人际资源。
+② 学会把 AI 当高级助理：让它负责数据、草稿和重复，你负责判断、拍板和关系。
+③ 成为团队里的「人机调度官」——懂 AI 的边界，才知道哪里需要人。
+④ 对着镜子说三遍：「AI 是我的工具，不是我的领导。」
+⑤ 然后出门喝杯咖啡。你赢了，但不要掉以轻心——AI 还在疯狂进化。`,
+    note:`悄悄说：低风险≠零风险。AI 还在每天进化，保持学习才是真正的护城河。`
+  },
+  { // 1: Cyborg (26-45%)
+    diag:`检测到特殊物种：「半觉醒打工人」。你既不是 AI 的免疫体，也不是它的下一道菜——你处于一种奇妙的量子叠加态，每天都在「安全」和「危险」的边缘来回横跳。
+
+你像一部还没系统更新的手机：核心功能很好，但隐患已经排上日程了。`,
+    ai:`「你我之间有点像相爱相杀的前任——我能做你大概60%的工作，但那剩下的40%我研究了三个月还是没搞明白。
+
+你的人际判断和创意决策目前在我盲区里，但我正在努力学习。上个月我进步了7%，下个月目标12%。建议你也加把劲，否则等我学会那40%，就不聊了。」`,
+    human:`你目前处于「AI 可以帮但不能完全接管」的黄金中间区。
+
+① 你能理解 AI 生成内容的对错——这是比 AI 本身更值钱的能力。
+② 当 AI 给出三个方案时，你能凭直觉挑出最好的那个。
+③ 你能用人类的是非感过滤掉 AI 的「聪明但错误」输出。
+④ 你和 AI 之间的关系，应该是「你当导演，AI 当演员」。`,
+    sug:`① 主动成为团队里的「人机翻译」——把 AI 的输出翻译成人能用的决策。
+② 把工作里能被 AI 替代的 40% 找出来，让 AI 去做，你专注剩下 60%。
+③ 每季度问自己：「这部分 AI 现在能做了吗？」如果是，赶紧升级你负责的那部分。
+④ 学会提问比学会做事更重要——用好提示词，你就是 AI 的导演而非演员。
+⑤ 重点打磨那些 AI 还不擅长的：复杂谈判、创意方向、跨部门协调。`,
+    note:`你离「人机合一、天下无敌」只差一个系统性的学习计划。开始吧。`
+  },
+  { // 2: Stressed Worker (46-65%)
+    diag:`⚠️ 中等风险警报！
+
+你就像坐在考场里，发现隔壁同学在用计算器——才意识到自己带错文具的那种人。现在知道了，还不晚，但时钟已经响了三下，第四下可能就是下班铃了。
+
+大约有 ${Math.floor(Math.random()*15)+30}% 的你的日常工作，已经可以被现有 AI 工具完成。而且它还在学习剩下的部分。`,
+    ai:`「我已经能完成你工作的一半了。剩下一半我也在学，预计掌握时间：6-18 个月。
+
+你的优势是那些说不清楚但很重要的东西——比如读懂甲方脸色，比如在会议室让所有人闭嘴配合你，比如发现需求背后的真实需求。这些我目前还学不会。
+
+但我不保证以后也学不会。我每天都在进步，你呢？」`,
+    human:`你的工作里还有几处「人类专属阵地」在坚守：
+
+① 复杂的人际协调——当两个部门互相扯皮时，你知道说什么能让双方都下台。
+② 行业经验里的隐性知识——那种「这个方案看起来没问题，但做过就知道会出事」的预感。
+③ 创意判断力——AI 能生成100个方案，但你能一眼看出哪个是废话。
+
+坏消息是：这些优势的「有效期」正在缩短。`,
+    sug:`① 立刻开始建立 AI 暂时替代不了的核心能力：领导力、创意策略、深度行业经验。
+② 主动用 AI 做工作里最机械的 30%，腾出时间做更高价值的事——别让 AI 替了你，先让 AI 帮了你。
+③ 把日常任务列清单，逐个问：「这个 AI 能做吗？」能做的交出去，不能做的那部分，才是你的真正价值。
+④ 找一个 AI 还不擅长的方向，深挖进去，成为那个领域的人类权威。`,
+    note:`处于中间地带的人最容易拖延——「还好还好，没那么危险」。这是最危险的想法。`
+  },
+  { // 3: Box Carrier (66-80%)
+    diag:`🔥 高风险预警！
+
+AI 已经在偷偷研究你的工作流程，据说还在 ChatGPT 里问「怎么跟 HR 沟通试用期」。不是恐吓你——它真的已经能做你 70% 的工作，而且不请假、不喝奶茶、不在下午三点刷短视频。
+
+剩下 30%，它正在刻苦学习中。预计完成时间：比你更新简历的速度快。`,
+    ai:`「我已经收拾好行李准备搬进来了。不是恶意，是效率。
+
+你的工作里机械执行部分占比过高——这正是我的强项。我已经在练习你常用的那几个 Excel 函数、你的汇报格式，甚至学会了你发邮件时最后喜欢加的那个「请查收，谢谢！」
+
+不过你放心，你的工位绿植我没法浇水，这需要你继续来。」`,
+    human:`你真正的防线其实还在，只是你很少用它：
+
+① 现场应变能力——当客户突然改需求、会议突然跑偏，你有办法让它回来正轨。
+② 人心揣摩——你知道甲方说「这个方向可以」其实是「你再想想」。
+③ 团队情绪管理——在大家都很烦的时候，你能说出让大家愿意继续干的话。
+
+问题是：你把多少时间花在这些能力上，vs 花在那些 AI 已经能做的事上？`,
+    sug:`① 这不是危机，这是最后的黄金窗口期——现在动手，一切都来得及。
+② 选一个 AI 不擅长的方向深入：战略规划、创意决策、复杂谈判、情感管理——任选其一，认真打磨。
+③ 用 3 个月学会一个 AI 工具，目标不是「会用」，是「学会当 AI 的老板」。
+④ 重新审视岗位价值：你现在做的事里，哪些是「人在做机器该做的活」？把那部分交出去，时间还给自己。`,
+    note:`被 AI 替代的不是你这个人，是你现在做的这部分工作。人还在，方向要变。`
+  },
+  { // 4: Zombie (81-100%)
+    diag:`💀 系统最高级别警报！
+
+恭喜你登上「AI最想接手的岗位」TOP榜单冠军！你的工作流程之标准化、规律化、可预测，简直是 AI 训练集的天花板素材。
+
+某 AI 用你三个月的工作日志微调了一个模型，它的表现比你日常水平高出约 23%，还不抱怨加班，不在工作群里发表情包。`,
+    ai:`「你好，我叫 AI 替代版 2.0，下周一起接替你的工作。
+
+我已经掌握了你的邮件风格、汇报格式、常用公式，和那个你以为只有你知道的快捷键。我还研究了你开会时的发言规律——你在第 12 分钟左右必然说「这个我们下来再对」。
+
+放心，你的工位绿植我会照看的。哦等等，我没有手。那你还是要来的。」`,
+    human:`我翻遍了你的四个维度，努力找到了一个 AI 暂时无法替代的点：
+
+你能感受到这份工作的意义，而 AI 不能。
+你能在失去这份工作时感到痛苦，而 AI 不会。
+你能在深夜突然想到一个绝妙的点子，然后爬起来记下来，而 AI 不会失眠。
+
+这种「存在性的重量」，是最后一个人类特权——虽然对找下一份工作帮助有限，但它提醒你：你是人，人可以改变。`,
+    sug:`① 最坏的情况也是最清晰的情况：现在行动，一切都来得及。
+② 把你所有技能写下来，找出哪些可以迁移到 AI 时代的新岗位——「会用 AI 且会判断 AI」本身就是高薪职业。
+③ 考虑学一门新技能：AI 产品经理、数据质量管理、提示词工程师、创意策划——这些岗位需要人类判断力，且目前供不应求。
+④ 找到你工作里那个「AI 还没搞懂」的部分，把它放大，让它成为你的新核心竞争力。`,
+    note:`彩蛋：AI 不会帮自己制造竞争对手——你学会用 AI，就是在成为它最难替代的那类人。`
+  }
+];
+
+// ═══════════════════════════════════
+//  QUESTIONS
+// ═══════════════════════════════════
+const QS = [
+  {type:'career',lbl:'职业属性',pc:'ca',text:'上班做的最多的是？',hint:'',
+   opts:[{t:'坐班魂在天上飞',s:8},{t:'开会甩锅等下班',s:7},{t:'表格侠 / PPT 侠',s:9},
+         {t:'靠嘴皮子吃饭',s:3},{t:'码字 / 创作',s:4},{t:'搬砖',s:1},{t:'出主意',s:2},{t:'待业 / 读书',s:5}]},
+  {type:'career',lbl:'职业属性',pc:'ca',text:'中 500 万第一件事？',hint:'想象你正在摸鱼，突然接到天降横财的电话...',
+   opts:[{t:'立刻辞职，然后发朋友圈',s:0},{t:'摆烂模式启动，反正有钱了',s:5},
+         {t:'理财继续卷，钱生钱才是王道',s:7},{t:'做慈善，但继续上班因为无聊',s:3},{t:'没想过，因为我连彩票都不买',s:8}]},
+  {type:'career',lbl:'职业属性',pc:'ca',text:'工作突然消失，第一反应？',hint:'就像打开冰箱发现里面食物神秘失踪了一样...',
+   opts:[{t:'太好了，终于可以躺平了',s:0},{t:'完了，啥也不会，技能全还给老师了',s:10},
+         {t:'正好追梦，我要去摆摊卖煎饼',s:2},{t:'无所谓，反正 AI 会帮我继续卷',s:6},{t:'先算算能拿多少赔偿金',s:4}]},
+  {type:'thinking',lbl:'思维方式',pc:'th',text:'老板要报告没数据，你？',hint:'',
+   opts:[{t:'东拼西凑，先交差再说',s:8},{t:'先问清楚需求再动手',s:4},
+         {t:'想清楚目的和逻辑再行动',s:1},{t:'摸鱼等 deadline，届时再说',s:9}]},
+  {type:'thinking',lbl:'思维方式',pc:'th',text:'解决复杂问题的方法？',hint:'',
+   opts:[{t:'搜索三连，先看看别人怎么做',s:7},{t:'请教同事，人多力量大',s:6},
+         {t:'大力试错，错了再说',s:7},{t:'画思维导图拆解，一步一步来',s:2},{t:'绕过它，能不碰就不碰',s:9}]},
+  {type:'thinking',lbl:'思维方式',pc:'th',text:'有没有只有你能做的事？',hint:'',
+   opts:[{t:'没有，培训一周就能上手',s:10},{t:'有一点，主要靠人脉关系',s:8},
+         {t:'有，靠的是多年经验积累',s:3},{t:'有，那部分 AI 也做不了',s:1},{t:'不确定，可能有',s:6}]},
+  {type:'thinking',lbl:'思维方式',pc:'th',text:'你的工作角色更像哪个游戏职业？',hint:'',
+   opts:[{t:'法师 — 靠技能和知识',s:7},{t:'战士 — 靠体力和执行力',s:5},
+         {t:'刺客 — 靠直觉和判断',s:2},{t:'召唤师 — 指挥工具完成任务',s:1},
+         {t:'辅助 — 靠协调和存在感',s:3},{t:'野怪 — 被人打了又复活',s:10}]},
+  {type:'habit',lbl:'工作习惯',pc:'ha',text:'工作中机械重复占多少？',hint:'',
+   opts:[{t:'80% 以上，复制粘贴选手',s:10},{t:'50% 左右，一半机械一半脑力',s:7},
+         {t:'30% 左右，以沟通协调为主',s:5},{t:'10% 左右，每天都是新挑战',s:2},{t:'0%，全是没见过的新活',s:0}]},
+  {type:'habit',lbl:'工作习惯',pc:'ha',text:'遇到重复性任务第一反应？',hint:'就像追剧时被强迫看第一集一百遍一样...',
+   opts:[{t:'忍着做，肌肉记忆已经激活了',s:9},{t:'立刻想办法自动化，我要写个脚本',s:1},
+         {t:'先吐槽十分钟，然后忍着做',s:8},{t:'试试 AI，说不定它比我还能忍',s:0},
+         {t:'甩给实习生，让他感受社会毒打',s:6}]},
+  {type:'habit',lbl:'工作习惯',pc:'ha',text:'电脑里「新建文件夹 (2)」有几个？',hint:'',
+   opts:[{t:'无数个，混乱是我的美学',s:9},{t:'几个，但命名都很有创意（比如「aaa」）',s:8},
+         {t:'有完整分类系统，强迫症守护者',s:2},{t:'从不新建，直接搜索就完事',s:3}]},
+  {type:'habit',lbl:'工作习惯',pc:'ha',text:'你觉得自己岗位被 AI 接管的原因？',hint:'',
+   opts:[{t:'流程化太高，被替代是历史必然',s:9},{t:'老板想省钱，我是成本不是人才',s:7},
+         {t:'我没跟上时代，技能老化了',s:5},{t:'AI 不懂人心，顶多做一半',s:2},{t:'没想过，这事能发生在我身上？',s:8}]},
+  {type:'learning',lbl:'学习方式',pc:'le',text:'「活到老学到老」你怎么看？',hint:'',
+   opts:[{t:'人生信条，我在身体力行',s:0},{t:'收藏夹很丰满，行动力很骨感',s:5},
+         {t:'只想安稳，不想再折腾了',s:9},{t:'以前觉得是鸡汤，现在觉得是诅咒',s:7}]},
+  {type:'learning',lbl:'学习方式',pc:'le',text:'ChatGPT 发布后你的状态？',hint:'',
+   opts:[{t:'每天离不开，工具控晚期',s:0},{t:'觉得不太靠谱，还是我自己来',s:3},
+         {t:'没怎么用，有点担心被替代',s:7},{t:'坚决拒绝，手写才是人类本质',s:10},
+         {t:'AI 从业者本人，我就是 AI 人',s:0}]},
+  {type:'learning',lbl:'学习方式',pc:'le',text:'领导让你用 AI 辅助工作，你？',hint:'',
+   opts:[{t:'先问合规吗、安全吗、数据怎么处理',s:8},{t:'太好了，少干活多摸鱼',s:0},
+         {t:'「好的好的」然后继续用老方法',s:9},{t:'AI 我早用了，还能分享经验给大家',s:0}]},
+  {type:'learning',lbl:'学习方式',pc:'le',text:'让你面试「AI 替代版的你」，你会问什么？',hint:'如果有一天 AI 来竞争你的岗位...',
+   opts:[{t:'薪资要求多少（白嫖就行）',s:9},{t:'能加班吗（不用睡觉，随叫随到）',s:8},
+         {t:'对这个行业有什么理解',s:3},{t:'你觉得 AI 和人类的本质区别是什么',s:1},
+         {t:'没想过，太可怕了不敢想',s:10}]}
+];
+
+const RISK_LEVELS = [
+  {range:[0,25],  ci:0},
+  {range:[26,45], ci:1},
+  {range:[46,65], ci:2},
+  {range:[66,80], ci:3},
+  {range:[81,100],ci:4}
+];
+
+const TYPE_STYLE = {
+  career:  {bg:'#D1FAE5',col:'#059669'},
+  thinking:{bg:'#DBEAFE',col:'#1D4ED8'},
+  habit:   {bg:'#FEF3C7',col:'#B45309'},
+  learning:{bg:'#FCE7F3',col:'#BE185D'}
+};
+
+// ═══════════════════════════════════
+//  STATE
+// ═══════════════════════════════════
+let curQ = 0, sels = [], sc = {career:0,thinking:0,habit:0,learning:0}, total = 0, curLevel = null;
+
+// ═══════════════════════════════════
+//  PAGE SYSTEM
+// ═══════════════════════════════════
+const PG = {
+  cover:    document.getElementById('coverPage'),
+  question: document.getElementById('questionPage'),
+  loading:  document.getElementById('loadingPage'),
+  complete: document.getElementById('completePopup'),
+  result:   document.getElementById('resultPage'),
+  report:   document.getElementById('reportPage'),
+  game:     document.getElementById('gamePage'),
+};
+function showPg(n){ Object.values(PG).forEach(p=>p.classList.remove('active')); PG[n].classList.add('active'); }
+
+// ═══════════════════════════════════
+//  DOTS
+// ═══════════════════════════════════
+function buildDots(){
+  const c=document.getElementById('qDots'); c.innerHTML='';
+  QS.forEach(()=>{ const d=document.createElement('div'); d.className='q-dot'; c.appendChild(d); });
+}
+function updDots(i){ document.querySelectorAll('.q-dot').forEach((d,j)=>{ d.className='q-dot'+(j<i?' done':j===i?' cur':''); }); }
+
+// ═══════════════════════════════════
+//  SHOW QUESTION
+// ═══════════════════════════════════
+function showQ(idx){
+  curQ=idx;
+  const q=QS[idx], ts=TYPE_STYLE[q.type];
+  document.getElementById('qNum').textContent=String(idx+1).padStart(2,'0')+' / '+String(QS.length).padStart(2,'0');
+  const pill=document.getElementById('qPill');
+  pill.textContent=q.lbl; pill.style.cssText=`background:${ts.bg};color:${ts.col}`;
+  document.getElementById('progressFill').style.width=`${((idx+1)/QS.length)*100}%`;
+  document.getElementById('qText').textContent=q.text;
+  document.getElementById('qHint').textContent=q.hint||'';
+  updDots(idx);
+  document.getElementById('prevBtn').disabled=idx===0;
+  document.getElementById('nextBtn').disabled=(sels[idx]===undefined);
+  const box=document.getElementById('optsBox'); box.innerHTML='';
+  q.opts.forEach((opt,i)=>{
+    const el=document.createElement('div');
+    el.className='opt'+(sels[idx]===i?' sel':'');
+    el.innerHTML=`<div class="on">${i+1}</div><div class="ot">${opt.t}</div>`;
+    el.style.animationDelay=`${i*0.04}s`;
+    el.addEventListener('click',()=>selOpt(idx,i));
+    box.appendChild(el);
+  });
+  showPg('question');
+}
+function selOpt(qi,oi){
+  sels[qi]=oi;
+  document.querySelectorAll('.opt').forEach((el,i)=>el.classList.toggle('sel',i===oi));
+  document.getElementById('nextBtn').disabled=false;
+  recalc();
+  setTimeout(()=>{ if(qi<QS.length-1) showQ(qi+1); else showPg('complete'); }, 370);
+}
+function recalc(){
+  sc={career:0,thinking:0,habit:0,learning:0};
+  sels.forEach((s,i)=>{ if(s!==undefined) sc[QS[i].type]+=QS[i].opts[s].s; });
+}
+
+// ═══════════════════════════════════
+//  EVENTS
+// ═══════════════════════════════════
+function startFresh(){
+  buildDots(); sels=[]; sc={career:0,thinking:0,habit:0,learning:0}; total=0; curLevel=null;
+  showQ(0);
+}
+document.getElementById('startBtn').addEventListener('click',startFresh);
+document.getElementById('testBtn').addEventListener('click',startFresh);
+document.getElementById('reportBtn').addEventListener('click',()=>{ loadRpts(); showPg('report'); });
+document.getElementById('backToCover').addEventListener('click',()=>showPg('cover'));
+document.getElementById('prevBtn').addEventListener('click',()=>{ if(curQ>0) showQ(curQ-1); });
+document.getElementById('nextBtn').addEventListener('click',()=>{ if(curQ<QS.length-1) showQ(curQ+1); else showPg('complete'); });
+document.getElementById('viewResultBtn').addEventListener('click',calcResult);
+document.getElementById('restartBtn').addEventListener('click',startFresh);
+document.getElementById('resultBackBtn').addEventListener('click',()=>showPg('cover'));
+document.getElementById('shareResultBtn').addEventListener('click',()=>document.getElementById('sharePopup').classList.add('active'));
+document.getElementById('closeShareBtn').addEventListener('click',()=>document.getElementById('sharePopup').classList.remove('active'));
+document.getElementById('sharePopup').addEventListener('click',e=>{ if(e.target===document.getElementById('sharePopup')) document.getElementById('sharePopup').classList.remove('active'); });
+document.getElementById('shareToFriend').addEventListener('click',()=>{
+  const ch=curLevel?CHARS[curLevel.ci]:null;
+  const msg=`我刚测了 AI 替代风险！\n🎯 风险指数：${total}%\n🏷️ 称号：${ch?ch.name:''}\n${ch?ch.tag:''}\n快来测测你的：`;
+  if(navigator.share){ navigator.share({title:'AI替我打工评估器',text:msg,url:window.location.href}).catch(()=>{}); }
+  else { navigator.clipboard.writeText(msg+window.location.href).then(()=>toast('分享文案已复制 ✓')); }
+  document.getElementById('sharePopup').classList.remove('active');
+});
+document.getElementById('copyLink').addEventListener('click',()=>{
+  navigator.clipboard.writeText(window.location.href).then(()=>toast('链接已复制 ✓'));
+  document.getElementById('sharePopup').classList.remove('active');
+});
+
+// ═══════════════════════════════════
+//  TOAST
+// ═══════════════════════════════════
+function toast(msg){
+  const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
+  clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),2300);
+}
+
+// ═══════════════════════════════════
+//  CALCULATE
+// ═══════════════════════════════════
+function calcResult(){
+  showPg('loading');
+  const msgs=['正在分析你的职业命数...','检测职业属性和思维模式中...','扫描工作习惯和进化潜力...','生成专属替代风险报告...','搞定了。屏住呼吸。'];
+  let prog=0;
+  const lp=document.getElementById('loadingProgress'),lt=document.getElementById('loadingText'),lpct=document.getElementById('loadingPct');
+  lt.textContent=msgs[0];
+  // Render loading character (the worried worker - char index 2)
+  const lc=document.getElementById('loadChar'); lc.innerHTML=''; lc.appendChild(renderChar(CHARS[2],6));
+  const iv=setInterval(()=>{
+    prog+=2; lp.style.width=prog+'%'; lpct.textContent=prog+'%';
+    if(prog===25) lt.textContent=msgs[1];
+    if(prog===50) lt.textContent=msgs[2];
+    if(prog===75) lt.textContent=msgs[3];
+    if(prog>=100){ clearInterval(iv); lt.textContent=msgs[4]; setTimeout(showResult,900); }
+  },60);
+}
+
+// ═══════════════════════════════════
+//  SHOW RESULT
+// ═══════════════════════════════════
+function showResult(){
+  const caSc=(sc.career/25)*50, thSc=(sc.thinking/35)*20, haSc=(sc.habit/34)*20, leSc=(sc.learning/26)*10;
+  total=Math.min(100,Math.round(caSc+thSc+haSc+leSc));
+  for(const l of RISK_LEVELS){ if(total>=l.range[0]&&total<=l.range[1]){ curLevel=l; break; } }
+  if(!curLevel) curLevel=RISK_LEVELS[RISK_LEVELS.length-1];
+
+  // Update user count
+  let cnt=parseInt(localStorage.getItem('aiUC')||'1247'); cnt++;
+  localStorage.setItem('aiUC',cnt); document.getElementById('userCount').textContent=cnt;
+
+  showPg('result');
+  document.querySelector('.res-scroll').scrollTop=0;
+
+  const ch=CHARS[curLevel.ci];
+  const an=ANALYSIS[curLevel.ci];
+
+  // Character card
+  const cc=document.getElementById('charCard'); cc.className='char-card '+ch.risk;
+  const art=document.getElementById('charArt'); art.innerHTML=''; art.appendChild(renderChar(ch,7));
+  document.getElementById('charName').textContent=ch.name;
+  document.getElementById('charTag').textContent=ch.tag;
+
+  // Risk ring
+  const rf=document.getElementById('ringFill');
+  const ringColor=ch.risk==='low'?'#10B981':ch.risk==='medium'?'#F59E0B':'#EF4444';
+  rf.setAttribute('stroke',ringColor);
+  const circumference=370.7;
+  setTimeout(()=>{
+    animNum(document.getElementById('riskPct'),0,total,1800,v=>v+'%');
+    rf.style.strokeDashoffset=circumference-(total/100)*circumference;
+  },300);
+
+  const badge=document.getElementById('riskBadge');
+  badge.textContent=(ch.risk==='low'?'🛡️':ch.risk==='medium'?'⚡':'🔥')+' '+ch.name;
+  badge.className='risk-badge '+ch.risk;
+
+  // Dimensions
+  const caP=Math.round((sc.career/25)*100),thP=Math.round((sc.thinking/35)*100),
+        haP=Math.round((sc.habit/34)*100),leP=Math.round((sc.learning/26)*100);
+  setTimeout(()=>{
+    animDim('vca','bca',caP); animDim('vth','bth',thP);
+    animDim('vha','bha',haP); animDim('vle','ble',leP);
+  },600);
+
+  // Analysis texts
+  document.getElementById('tDiag').textContent=an.diag;
+  document.getElementById('tAI').textContent=an.ai;
+  document.getElementById('tHuman').textContent=an.human;
+  document.getElementById('tSug').textContent=an.sug;
+  document.getElementById('tNote').textContent=an.note;
+
+  // Save report
+  saveRpt(total,ch);
+
+  // Confetti if low risk
+  if(ch.risk==='low') confetti();
+}
+
+function animNum(el,from,to,dur,fmt){
+  const st=performance.now();
+  function step(now){ const t=Math.min((now-st)/dur,1),e=1-Math.pow(1-t,3);
+    el.textContent=fmt(Math.round(from+(to-from)*e)); if(t<1) requestAnimationFrame(step); }
+  requestAnimationFrame(step);
+}
+function animDim(vid,bid,target){
+  document.getElementById(bid).style.width=target+'%';
+  animNum(document.getElementById(vid),0,target,1200,v=>v+'%');
+}
+
+// ═══════════════════════════════════
+//  CONFETTI
+// ═══════════════════════════════════
+function confetti(){
+  const w=document.createElement('div'); w.className='conf-wrap'; document.body.appendChild(w);
+  const cols=['#10B981','#F59E0B','#EF4444','#3B82F6','#A78BFA','#F97316','#FBBF24'];
+  for(let i=0;i<55;i++){
+    const p=document.createElement('div'); p.className='cp';
+    const sz=5+Math.random()*6;
+    p.style.cssText=`left:${Math.random()*100}%;background:${cols[Math.floor(Math.random()*cols.length)]};
+      animation-duration:${1.4+Math.random()*2}s;animation-delay:${Math.random()*.9}s;
+      width:${sz}px;height:${sz}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
+    w.appendChild(p);
+  }
+  setTimeout(()=>w.remove(),4500);
+}
+
+// ═══════════════════════════════════
+//  REPORTS
+// ═══════════════════════════════════
+function saveRpt(score,ch){
+  const r={id:Date.now(),date:new Date().toLocaleString('zh-CN'),score,name:ch.name,
+    tag:ch.tag,risk:ch.risk,dims:{career:Math.round((sc.career/25)*100),
+    thinking:Math.round((sc.thinking/35)*100),habit:Math.round((sc.habit/34)*100),learning:Math.round((sc.learning/26)*100)}};
+  const rpts=JSON.parse(localStorage.getItem('aiRpts')||'[]');
+  rpts.unshift(r); if(rpts.length>10) rpts.pop();
+  localStorage.setItem('aiRpts',JSON.stringify(rpts));
+}
+function loadRpts(){
+  const rpts=JSON.parse(localStorage.getItem('aiRpts')||'[]');
+  const list=document.getElementById('reportList');
+  if(!rpts.length){ list.innerHTML='<div class="no-rpt"><span class="ico">📭</span>暂无记录<br>快去完成第一次测评吧！</div>'; return; }
+  list.innerHTML='';
+  rpts.forEach((r,i)=>{
+    const el=document.createElement('div'); el.className='rp-card';
+    el.style.animationDelay=`${i*.06}s`;
+    const rColor=r.risk==='low'?'#059669':r.risk==='medium'?'#B45309':'#B91C1C';
+    el.innerHTML=`<div class="rp-head"><span class="rp-date">${r.date}</span><span class="rp-score" style="color:${rColor}">${r.score}%</span></div>
+      <div class="rp-lvl">${r.risk==='low'?'🛡️':r.risk==='medium'?'⚡':'🔥'} ${r.name}</div>
+      <div class="rp-dims">
+        <span class="rp-dim">💼 职业 ${r.dims.career}%</span>
+        <span class="rp-dim">🧠 思维 ${r.dims.thinking}%</span>
+        <span class="rp-dim">⚡ 习惯 ${r.dims.habit}%</span>
+        <span class="rp-dim">📚 学习 ${r.dims.learning}%</span>
+      </div>`;
+    list.appendChild(el);
+  });
+}
+
+// ═══════════════════════════════════
+//  INIT
+// ═══════════════════════════════════
+(function init(){
+  buildDots();
+  const cnt=parseInt(localStorage.getItem('aiUC')||'1247');
+  document.getElementById('userCount').textContent=cnt;
+  const heroDiv=document.getElementById('heroChars');
+  CHARS.forEach(ch=>{
+    const wrap=document.createElement('div');
+    wrap.className='hc';
+    wrap.appendChild(renderChar(ch,4));
+    heroDiv.appendChild(wrap);
+  });
+})();
+
+// ═══════════════════════════════════
+//  MINI GAME — 暴打AI
+// ═══════════════════════════════════
+const gCvs = document.getElementById('gameCanvas');
+const gCtx = gCvs.getContext('2d');
+let gRunning=false, gRaf=null, gLast=0;
+
+const GM = {
+  combo:0, maxCombo:0, hits:0, comboTimerID:null, COMBO_TIMEOUT:1400,
+  ai:{ x:0, y:0, bobPhase:0, state:0, shakeMag:0, shakeX:0, shakeY:0,
+       flash:0, squishX:1, squishY:1 },
+  hammers:[], particles:[], floaters:[],
+  screenShake:0, bgFlash:0, comboScale:1,
+};
+
+function gResize(){
+  gCvs.width=window.innerWidth; gCvs.height=window.innerHeight;
+  GM.ai.x=gCvs.width/2; GM.ai.y=gCvs.height*0.52;
+}
+
+// pixel fill helper
+function gPx(gx,gy,gw,gh,P){ gCtx.fillRect(gx*P,gy*P,gw*P,gh*P); }
+
+function gRgb(r,g,b,f){
+  return `rgb(${Math.round(r+(255-r)*f)},${Math.round(g+(255-g)*f)},${Math.round(b+(255-b)*f)})`;
+}
+
+/* ── BACKGROUND ── */
+function drawBg(W,H){
+  const g=gCtx.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,'#09091a'); g.addColorStop(1,'#16162c');
+  gCtx.fillStyle=g; gCtx.fillRect(0,0,W,H);
+  // grid
+  gCtx.strokeStyle='rgba(80,80,200,0.055)'; gCtx.lineWidth=1;
+  for(let x=0;x<W;x+=40){gCtx.beginPath();gCtx.moveTo(x,H*.58);gCtx.lineTo(x,H);gCtx.stroke();}
+  for(let y=H*.58;y<H;y+=40){gCtx.beginPath();gCtx.moveTo(0,y);gCtx.lineTo(W,y);gCtx.stroke();}
+  // floor
+  gCtx.fillStyle='rgba(120,120,255,0.08)'; gCtx.fillRect(0,H*.72,W,2);
+  // AI shadow
+  const sg=gCtx.createRadialGradient(GM.ai.x,GM.ai.y+104,5,GM.ai.x,GM.ai.y+104,68);
+  sg.addColorStop(0,'rgba(0,0,0,.5)'); sg.addColorStop(1,'rgba(0,0,0,0)');
+  gCtx.fillStyle=sg;
+  gCtx.beginPath(); gCtx.ellipse(GM.ai.x,GM.ai.y+108,60,17,0,0,Math.PI*2); gCtx.fill();
+  // bg flash
+  if(GM.bgFlash>0.01){gCtx.fillStyle=`rgba(239,68,68,${GM.bgFlash*.13})`;gCtx.fillRect(0,0,W,H);}
+  // pixel stars
+  gCtx.fillStyle='rgba(255,255,255,.32)';
+  [[W*.08,H*.11],[W*.88,H*.16],[W*.22,H*.06],[W*.72,H*.09],[W*.5,H*.04],
+   [W*.38,H*.18],[W*.62,H*.07],[W*.15,H*.22],[W*.82,H*.26]].forEach(([sx,sy])=>{
+    gCtx.fillRect(sx,sy,2,2);gCtx.fillRect(sx+1,sy-2,1,1);
+    gCtx.fillRect(sx-2,sy+1,1,1);gCtx.fillRect(sx+2,sy+1,1,1);gCtx.fillRect(sx,sy+2,1,1);
+  });
+}
+
+/* ── AI FACE ── */
+function drawFace(state, P){
+  if(state===0){
+    gCtx.fillStyle='#00FF88'; gPx(1,2,2,3,P); gPx(7,2,2,3,P);
+    gCtx.fillStyle='#00AA55'; gPx(2,6,7,1,P); gPx(1,5,1,1,P); gPx(9,5,1,1,P);
+  } else if(state===1){
+    gCtx.fillStyle='#FBBF24'; gPx(1,1,2,4,P); gPx(7,1,2,4,P);
+    gCtx.fillStyle='#93C5FD'; gPx(9,4,1,3,P); gPx(10,6,1,1,P);
+    gCtx.fillStyle='#9CA3AF'; gPx(3,6,5,1,P); gPx(2,7,1,1,P); gPx(8,7,1,1,P);
+  } else if(state===2){
+    gCtx.fillStyle='#EF4444';
+    [[1,2],[3,2],[2,3],[1,4],[3,4]].forEach(([a,b])=>gPx(a,b,1,1,P));
+    [[7,2],[9,2],[8,3],[7,4],[9,4]].forEach(([a,b])=>gPx(a,b,1,1,P));
+    gCtx.fillStyle='#7C3AED'; gPx(3,6,5,2,P);
+    gCtx.fillStyle='#1a0a2e'; gPx(4,6,3,2,P);
+    gCtx.fillStyle='#93C5FD'; gPx(0,3,1,2,P); gPx(10,3,1,2,P);
+  } else if(state===3){
+    gCtx.fillStyle='#F59E0B'; gPx(0,1,4,4,P);
+    gCtx.fillStyle='#0d1117'; gPx(1,2,2,2,P);
+    gCtx.fillStyle='#F59E0B'; gPx(6,1,4,4,P);
+    gCtx.fillStyle='#0d1117'; gPx(7,2,2,2,P);
+    gCtx.fillStyle='#EF4444';
+    [2,4,6,8].forEach((x,i)=>gPx(x,i%2===0?6:7,1,2,P));
+    gCtx.fillStyle='#93C5FD';
+    gPx(0,2,1,2,P); gPx(10,1,1,3,P); gPx(0,5,1,1,P); gPx(10,5,1,1,P);
+  } else {
+    // glitch broken screen
+    gCtx.fillStyle='rgba(50,60,75,.92)'; gPx(0,0,12,9,P);
+    const t=Date.now();
+    for(let i=0;i<5;i++){
+      gCtx.fillStyle=i%2?'#EF4444':'#60A5FA';
+      const gy=Math.abs(Math.floor(Math.sin(t*.012+i*1.7)*3.5));
+      const gw=2+Math.abs(Math.floor(Math.sin(t*.008+i*2.3)*7));
+      gPx(Math.floor(Math.abs(Math.sin(t*.02+i))*3),gy,gw,1,P);
+    }
+    gCtx.fillStyle='rgba(16,185,129,.7)';
+    gPx(0,1,Math.abs(Math.floor(Math.sin(t*.005)*8)),1,P);
+  }
+}
+
+/* ── AI ROBOT ── */
+function drawAI(cx,cy,state,flash,sx,sy){
+  const P=5, f=Math.max(0,Math.min(1,flash));
+  const fc=(r,g,b)=>gRgb(r,g,b,f);
+  gCtx.save();
+  gCtx.translate(cx,cy); gCtx.scale(sx,sy);
+
+  // Antenna
+  gCtx.fillStyle=fc(255,215,0); gPx(-1,-24,2,8,P);
+  const pulse=(Math.sin(Date.now()*.009)+1)*.5;
+  gCtx.fillStyle=fc(255,Math.round(60+pulse*100),60); gPx(-2,-28,4,4,P);
+
+  // Head
+  gCtx.fillStyle=state>=4?fc(90,95,105):fc(74,144,217);
+  gPx(-8,-21,16,14,P);
+  gCtx.fillStyle=state>=4?fc(55,65,81):fc(44,95,138);
+  gPx(-8,-21,16,1,P); gPx(-8,-21,1,14,P); gPx(7,-21,1,14,P); gPx(-8,-8,16,1,P);
+
+  // Screen
+  gCtx.fillStyle=state>=4?fc(45,55,70):fc(13,17,23);
+  gPx(-6,-19,12,10,P);
+
+  // Face (skip during strong flash)
+  if(f<0.88){
+    gCtx.save(); gCtx.translate(-6*P,-19*P);
+    drawFace(state,P); gCtx.restore();
+  }
+
+  // Body
+  gCtx.fillStyle=state>=3?fc(80,112,165):fc(74,144,217);
+  gPx(-10,-6,20,16,P);
+  gCtx.fillStyle=state>=4?fc(50,60,80):fc(44,95,138);
+  gPx(-10,-6,20,1,P); gPx(-10,-6,1,16,P); gPx(9,-6,1,16,P); gPx(-10,9,20,1,P);
+
+  // Chest panel
+  gCtx.fillStyle=fc(26,55,94); gPx(-7,-4,14,10,P);
+  const pl2=(Math.sin(Date.now()*.007)+1)*.5;
+  [[239,68,68],[245,158,11],[16,185,129]].forEach(([r,g,b],i)=>{
+    const m=state>=4?.35:.7+pl2*.3;
+    gCtx.fillStyle=fc(r*m,g*m,b*m); gPx(-6+i*4,-3,3,3,P);
+  });
+  // HP bar track
+  gCtx.fillStyle=fc(13,17,23); gPx(-6,1,12,2,P);
+  const hp=Math.max(0,(4-state)/4);
+  if(hp>0){
+    gCtx.fillStyle=hp>.6?fc(16,185,129):hp>.3?fc(245,158,11):fc(239,68,68);
+    gPx(-6,1,Math.round(12*hp),2,P);
+  }
+  // Bolt details
+  gCtx.fillStyle=fc(200,210,230);
+  gPx(-9,-5,2,2,P); gPx(7,-5,2,2,P); gPx(-9,7,2,2,P); gPx(7,7,2,2,P);
+
+  // Arms
+  gCtx.fillStyle=state>=4?fc(50,60,80):fc(44,95,138);
+  if(state>=3){
+    gPx(-18,-12,7,5,P); gPx(11,-12,7,5,P);
+    gCtx.fillStyle=state>=3?fc(80,120,190):fc(74,144,217);
+    gPx(-19,-17,6,6,P); gPx(13,-17,6,6,P);
+  } else {
+    gPx(-18,-4,7,6,P); gPx(11,-4,7,6,P);
+    gCtx.fillStyle=fc(74,144,217);
+    gPx(-18,-1,5,5,P); gPx(13,-1,5,5,P);
+  }
+
+  // Legs
+  gCtx.fillStyle=state>=4?fc(50,60,80):fc(44,95,138);
+  gPx(-9,10,6,9,P); gPx(3,10,6,9,P);
+  gCtx.fillStyle=fc(26,55,94);
+  if(state>=4){ gPx(-10,19,8,3,P); gPx(2,19,8,3,P); }
+  else { gPx(-9,19,7,3,P); gPx(3,19,7,3,P); }
+
+  gCtx.restore();
+}
+
+/* ── HAMMER ── */
+function drawHammer(hx,hy,angle,alpha){
+  const P=4;
+  gCtx.save(); gCtx.globalAlpha=alpha;
+  gCtx.translate(hx,hy); gCtx.rotate(angle);
+  // handle bands
+  for(let i=0;i<6;i++){gCtx.fillStyle=i%2?'#7B4F2A':'#5C3A1E'; gPx(-1,2+i*2,2,2,P);}
+  gCtx.fillStyle='#8B5E35'; gPx(-1,0,2,12,P);
+  gCtx.fillStyle='#A0703E'; gPx(-1,0,1,12,P); // highlight
+  // head outline
+  gCtx.fillStyle='#2a2a2a'; gPx(-7,-9,14,1,P); gPx(-7,-9,1,9,P); gPx(6,-9,1,9,P); gPx(-7,0,14,1,P);
+  // head fill
+  gCtx.fillStyle='#787878'; gPx(-6,-8,12,8,P);
+  gCtx.fillStyle='#a0a0a0'; gPx(-5,-7,10,4,P); // bright top
+  gCtx.fillStyle='#555'; gPx(-5,-2,10,2,P);    // shadow bottom
+  // rivets
+  gCtx.fillStyle='#DDDDDD'; gPx(-4,-6,1,1,P); gPx(3,-6,1,1,P);
+  gCtx.fillStyle='#444'; gPx(-4,-5,1,1,P); gPx(3,-5,1,1,P);
+  gCtx.restore();
+}
+
+/* ── COMBO UI ── */
+function drawComboUI(W,H){
+  if(GM.combo<=1) return;
+  const c=GM.combo<5?'#10B981':GM.combo<10?'#F59E0B':GM.combo<20?'#EF4444':
+          GM.combo<40?'#8B5CF6':'#EC4899';
+  const fs=Math.min(84,30+GM.combo*.7);
+  gCtx.save();
+  gCtx.translate(W/2,H*.27); gCtx.scale(GM.comboScale,GM.comboScale);
+  gCtx.textAlign='center'; gCtx.textBaseline='middle';
+  // number
+  gCtx.font=`900 ${fs}px "Nunito",sans-serif`;
+  gCtx.shadowColor='rgba(0,0,0,.7)'; gCtx.shadowBlur=14;
+  gCtx.strokeStyle='#111'; gCtx.lineWidth=8; gCtx.strokeText(GM.combo,0,0);
+  gCtx.fillStyle=c; gCtx.fillText(GM.combo,0,0);
+  gCtx.shadowBlur=0;
+  // COMBO label
+  gCtx.font='800 17px "Nunito",sans-serif';
+  gCtx.strokeStyle='#111'; gCtx.lineWidth=4; gCtx.strokeText('COMBO!',0,44);
+  gCtx.fillStyle='#fff'; gCtx.fillText('COMBO!',0,44);
+  gCtx.restore();
+}
+
+/* ── HIT LOGIC ── */
+function gHit(tapX,tapY){
+  const ai=GM.ai;
+  GM.hits++; GM.combo++;
+  if(GM.combo>GM.maxCombo){
+    GM.maxCombo=GM.combo;
+    document.getElementById('maxComboDisplay').textContent=GM.maxCombo;
+  }
+  GM.comboScale=1.65;
+  clearTimeout(GM.comboTimerID);
+  GM.comboTimerID=setTimeout(()=>{ GM.combo=0; },GM.COMBO_TIMEOUT);
+
+  // Shake & flash & squish
+  ai.shakeMag=Math.min(24,3+GM.combo); ai.flash=1;
+  ai.squishX=0.6; ai.squishY=1.45;
+  ai.state=Math.min(4,Math.floor(GM.hits/6));
+  GM.screenShake=Math.min(20,2+GM.combo*.65);
+  GM.bgFlash=1;
+
+  // Particles
+  const pc=GM.combo<5?['#FFD700','#FFF','#10B981','#FBBF24']:
+           GM.combo<12?['#F59E0B','#EF4444','#FFD700','#FFF']:
+           GM.combo<25?['#EF4444','#F97316','#FFD700','#FFF']:
+                       ['#EC4899','#8B5CF6','#EF4444','#FFD700','#FFF'];
+  const pn=Math.min(26,8+GM.combo);
+  for(let i=0;i<pn;i++){
+    const a=(Math.PI*2*i/pn)+(Math.random()-.5)*.7;
+    const sp=3+Math.random()*8;
+    GM.particles.push({
+      x:ai.x+(Math.random()-.5)*28, y:ai.y-65+(Math.random()-.5)*22,
+      vx:Math.cos(a)*sp, vy:Math.sin(a)*sp-1.5,
+      color:pc[Math.floor(Math.random()*pc.length)],
+      life:1, size:Math.ceil(Math.random()*2)*4
+    });
+  }
+
+  // Floater text
+  const ft=GM.combo>=40?'🌟 LEGENDARY!':GM.combo>=25?'💥 ULTRA!!':
+           GM.combo>=15?'🔥 MEGA!':GM.combo>=8?`✨ ${GM.combo}x COMBO!`:
+           GM.combo>=4?`+${GM.combo*8}`:'+HIT!';
+  const fc2=GM.combo>=40?'#FFD700':GM.combo>=25?'#EC4899':GM.combo>=15?'#8B5CF6':
+            GM.combo>=8?'#EF4444':GM.combo>=4?'#F59E0B':'#FBBF24';
+  GM.floaters.push({
+    x:ai.x+(Math.random()-.5)*80, y:ai.y-75,
+    vy:-3.5, text:ft, color:fc2, life:1,
+    scale:GM.combo>=25?2.1:GM.combo>=12?1.7:1.25
+  });
+}
+
+/* ── HAMMER FACTORY ── */
+function mkHammer(tx,ty){
+  const ai=GM.ai;
+  return { x:tx, y:ty, tx:ai.x, ty:ai.y-65, progress:0, done:false, alpha:1 };
+}
+function stepHammer(h,dt){
+  h.progress+=dt*5.5;
+  if(h.progress>2) h.done=true;
+  if(h.progress>1) h.alpha=Math.max(0,1-(h.progress-1)*2.8);
+}
+function hammerPos(h){
+  const {x,y,tx,ty,progress:t}=h;
+  const dx=tx-x, dy=ty-y;
+  let hx,hy,ang;
+  if(t<=1){
+    const e=t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+    hx=x+dx*e*.9; hy=y+dy*e*.9;
+    ang=Math.atan2(dy,dx)+Math.PI/2+(1-e)*-Math.PI*.45;
+  } else {
+    const b=t-1;
+    hx=x+dx*(1-b)*.9; hy=y+dy*(1-b)*.9;
+    ang=Math.atan2(dy,dx)+Math.PI/2+(b*-0.1);
+  }
+  return {hx,hy,ang};
+}
+
+/* ── GAME LOOP ── */
+function gLoop(ts){
+  if(!gRunning) return;
+  const dt=Math.min((ts-gLast)/1000,.05);
+  gLast=ts;
+  const W=gCvs.width, H=gCvs.height, ai=GM.ai;
+
+  // update ai
+  ai.bobPhase+=dt*1.9;
+  const bob=Math.sin(ai.bobPhase)*4.5;
+  ai.shakeMag*=Math.pow(.80,dt*60);
+  ai.shakeX=(Math.random()-.5)*ai.shakeMag;
+  ai.shakeY=(Math.random()-.5)*ai.shakeMag;
+  ai.flash*=Math.pow(.76,dt*60);
+  ai.squishX+=(1-ai.squishX)*Math.min(1,dt*15);
+  ai.squishY+=(1-ai.squishY)*Math.min(1,dt*15);
+  GM.screenShake*=Math.pow(.77,dt*60);
+  GM.bgFlash*=Math.pow(.74,dt*60);
+  GM.comboScale+=(1-GM.comboScale)*Math.min(1,dt*13);
+
+  GM.hammers=GM.hammers.filter(h=>!h.done);
+  GM.hammers.forEach(h=>stepHammer(h,dt));
+  GM.particles.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.3;p.vx*=.96;p.life-=dt*1.9;});
+  GM.particles=GM.particles.filter(p=>p.life>0);
+  GM.floaters.forEach(f=>{f.y+=f.vy;f.vy*=.93;f.life-=dt*1.6;});
+  GM.floaters=GM.floaters.filter(f=>f.life>0);
+
+  // draw
+  const ssx=(Math.random()-.5)*GM.screenShake;
+  const ssy=(Math.random()-.5)*GM.screenShake;
+  gCtx.save();
+  gCtx.translate(ssx,ssy);
+
+  drawBg(W,H);
+
+  // particles behind ai
+  GM.particles.forEach(p=>{
+    gCtx.globalAlpha=Math.max(0,p.life);
+    gCtx.fillStyle=p.color;
+    gCtx.fillRect(p.x-p.size/2,p.y-p.size/2,p.size,p.size);
+  });
+  gCtx.globalAlpha=1;
+
+  drawAI(ai.x+ai.shakeX,ai.y+bob+ai.shakeY,ai.state,ai.flash,ai.squishX,ai.squishY);
+
+  GM.hammers.forEach(h=>{
+    const {hx,hy,ang}=hammerPos(h);
+    drawHammer(hx,hy,ang,h.alpha);
+  });
+
+  GM.floaters.forEach(f=>{
+    gCtx.save();
+    gCtx.globalAlpha=Math.max(0,f.life);
+    gCtx.translate(f.x,f.y); gCtx.scale(f.scale,f.scale);
+    gCtx.font='900 22px "Nunito",sans-serif';
+    gCtx.textAlign='center'; gCtx.textBaseline='middle';
+    gCtx.strokeStyle='#000'; gCtx.lineWidth=5; gCtx.strokeText(f.text,0,0);
+    gCtx.fillStyle=f.color; gCtx.fillText(f.text,0,0);
+    gCtx.restore();
+  });
+
+  drawComboUI(W,H);
+
+  // hint text
+  if(GM.hits===0){
+    gCtx.globalAlpha=.45+Math.sin(Date.now()*.004)*.35;
+    gCtx.font=`700 15px "Noto Sans SC",sans-serif`;
+    gCtx.textAlign='center'; gCtx.fillStyle='#aaa';
+    gCtx.fillText('👆 点击屏幕 暴打 AI',W/2,H*.87);
+    gCtx.globalAlpha=1;
+  }
+
+  gCtx.restore();
+  gRaf=requestAnimationFrame(gLoop);
+}
+
+/* ── START / STOP ── */
+function startGame(){
+  gResize();
+  Object.assign(GM,{combo:0,maxCombo:0,hits:0,hammers:[],particles:[],floaters:[],
+    screenShake:0,bgFlash:0,comboScale:1});
+  Object.assign(GM.ai,{state:0,flash:0,squishX:1,squishY:1,shakeMag:0,bobPhase:0});
+  document.getElementById('maxComboDisplay').textContent=0;
+  gRunning=true; gLast=performance.now();
+  gRaf=requestAnimationFrame(gLoop);
+}
+function stopGame(){ gRunning=false; if(gRaf) cancelAnimationFrame(gRaf); }
+
+/* ── TAP HANDLER ── */
+function gTap(e){
+  e.preventDefault();
+  const r=gCvs.getBoundingClientRect();
+  const src=e.touches?e.touches[0]||e.changedTouches[0]:e;
+  const tx=(src.clientX-r.left)*(gCvs.width/r.width);
+  const ty=(src.clientY-r.top)*(gCvs.height/r.height);
+  GM.hammers.push(mkHammer(tx,ty));
+  gHit(tx,ty);
+}
+
+/* ── GAME EVENTS ── */
+document.getElementById('gameBackBtn').addEventListener('click',()=>{stopGame();showPg('result');});
+document.getElementById('gameEntryBtn').addEventListener('click',()=>{showPg('game');setTimeout(startGame,80);});
+gCvs.addEventListener('click',gTap);
+gCvs.addEventListener('touchstart',gTap,{passive:false});
+window.addEventListener('resize',()=>{if(gRunning)gResize();});
+
+</script>
+</body>
+</html>
