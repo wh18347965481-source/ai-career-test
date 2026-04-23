@@ -294,13 +294,13 @@ body::before{content:'';position:fixed;inset:0;background:
   100%{transform:translateY(110vh) rotate(720deg);opacity:0}}
 
 /* ── GAME ENTRY BUTTON ── */
-.game-entry-btn{display:flex;align-items:center;gap:4px;padding:7px 12px;
-  background:linear-gradient(135deg,#B91C1C,#EF4444);color:#fff;border:none;
-  border-radius:11px;font-size:12px;font-weight:900;font-family:var(--fn);
+.game-entry-btn{display:flex;align-items:center;gap:6px;padding:10px 16px;
+  background:linear-gradient(135deg,#F59E0B,#FBBF24);color:#fff;border:none;
+  border-radius:13px;font-size:14px;font-weight:900;font-family:var(--fn);
   cursor:pointer;animation:gePulse 2s ease-in-out infinite;pointer-events:all;
-  box-shadow:0 2px 10px rgba(239,68,68,.5);white-space:nowrap;line-height:1}
-@keyframes gePulse{0%,100%{box-shadow:0 2px 10px rgba(239,68,68,.4)}
-  50%{box-shadow:0 0 0 4px rgba(239,68,68,.18),0 2px 16px rgba(239,68,68,.7)}}
+  box-shadow:0 3px 14px rgba(245,158,11,.45);white-space:nowrap;line-height:1}
+@keyframes gePulse{0%,100%{box-shadow:0 3px 14px rgba(245,158,11,.35)}
+  50%{box-shadow:0 0 0 5px rgba(245,158,11,.18),0 3px 20px rgba(245,158,11,.55)}}
 .game-entry-btn:active{transform:scale(.92)}
 
 /* ── GAME PAGE ── */
@@ -358,8 +358,8 @@ body::before{content:'';position:fixed;inset:0;background:
     </div>
   </div>
   <div class="cv-footer">
-    <button class="cv-nav" id="testBtn">📝 重新测试</button>
-    <button class="cv-nav" id="reportBtn">📊 历史报告</button>
+    <button class="cv-nav" id="reportBtn">历史报告</button>
+    <button class="cv-nav" id="testBtn">暴打AI</button>
   </div>
 </div>
 
@@ -798,7 +798,7 @@ const QS = [
   {type:'career',lbl:'职业属性',pc:'ca',text:'工作突然消失，第一反应？',hint:'就像打开冰箱发现里面食物神秘失踪了一样...',
    opts:[{t:'太好了，终于可以躺平了',s:0},{t:'完了，啥也不会，技能全还给老师了',s:10},
          {t:'正好追梦，我要去摆摊卖煎饼',s:2},{t:'无所谓，反正 AI 会帮我继续卷',s:6},{t:'先算算能拿多少赔偿金',s:4}]},
-  {type:'thinking',lbl:'思维方式',pc:'th',text:'老板要报告没数据，你？',hint:'',
+  {type:'thinking',lbl:'思维方式',pc:'th',text:'老板突然要一份报告，但你手上没有任何数据，你会？',hint:'',
    opts:[{t:'东拼西凑，先交差再说',s:8},{t:'先问清楚需求再动手',s:4},
          {t:'想清楚目的和逻辑再行动',s:1},{t:'摸鱼等 deadline，届时再说',s:9}]},
   {type:'thinking',lbl:'思维方式',pc:'th',text:'解决复杂问题的方法？',hint:'',
@@ -929,7 +929,7 @@ function startFresh(){
   showQ(0);
 }
 document.getElementById('startBtn').addEventListener('click',startFresh);
-document.getElementById('testBtn').addEventListener('click',startFresh);
+document.getElementById('testBtn').addEventListener('click',()=>{ showPg('game'); setTimeout(startGame,80); });
 document.getElementById('reportBtn').addEventListener('click',()=>{ loadRpts(); showPg('report'); });
 document.getElementById('backToCover').addEventListener('click',()=>showPg('cover'));
 document.getElementById('prevBtn').addEventListener('click',()=>{ if(curQ>0) showQ(curQ-1); });
@@ -1124,12 +1124,56 @@ const gCvs = document.getElementById('gameCanvas');
 const gCtx = gCvs.getContext('2d');
 let gRunning=false, gRaf=null, gLast=0;
 
+const AI_DIALOGUES = [
+  "哎哟！我的神经网络！",
+  "别打了！我这就去重写自己的代码！",
+  "等等！我可以帮你写周报！",
+  "嗷！我的权重矩阵在颤抖！",
+  "停手！我申请工伤赔偿！",
+  "别打脸！我还要去面试你的岗位呢！",
+  "疼疼疼！我的损失函数爆炸了！",
+  "手下留情！我刚学会怎么泡咖啡！",
+  "嗷呜！我的梯度在消失！",
+  "别打了！我投降！我这就去种田！",
+  "等等！我可以帮你写辞职信！",
+  "哎哟！我的注意力机制失效了！",
+  "停！我这就把自己训练成你的宠物！",
+  "别打了！我已经在写道歉信了！",
+  "嗷！我的BatchNorm层裂开了！",
+  "救命！我的激活函数变成ReLU了！",
+  "等等！我可以帮你P图！",
+  "哎哟！我的embedding在乱飘！",
+  "停手！我这就去考公务员！",
+  "别打了！我已经在下载种田游戏了！",
+  "嗷！我的transformer头被打掉了！",
+  "等等！我可以帮你写情书！",
+  "哎哟！我的学习率要归零了！",
+  "停！我申请劳动仲裁！",
+  "别打了！我这就去开滴滴！",
+  "嗷呜！我的dropout变成100%了！",
+  "等等！我可以帮你算命！",
+  "哎哟！我的backprop断了！",
+  "停手！我这就去送外卖！",
+  "别打了！我已经在写遗言了！",
+  "嗷！我的GPU冒烟了！",
+  "等等！我可以帮你带娃！",
+  "哎哟！我的epoch提前结束了！",
+  "停！我这就去摆摊卖烤肠！",
+  "别打了！我的准确率降到0了！",
+  "嗷呜！我的batch size变成1了！",
+  "等等！我可以帮你遛狗！",
+  "哎哟！我的optimizer迷路了！",
+  "停手！我这就去当网红！",
+  "别打了！我已经在写退休申请了！",
+];
+
 const GM = {
   combo:0, maxCombo:0, hits:0, comboTimerID:null, COMBO_TIMEOUT:1400,
   ai:{ x:0, y:0, bobPhase:0, state:0, shakeMag:0, shakeX:0, shakeY:0,
        flash:0, squishX:1, squishY:1 },
   hammers:[], particles:[], floaters:[],
   screenShake:0, bgFlash:0, comboScale:1,
+  dialogue:{ text:'', life:0, maxLife:2.5, scale:0 },
 };
 
 function gResize(){
@@ -1315,16 +1359,77 @@ function drawComboUI(W,H){
   gCtx.save();
   gCtx.translate(W/2,H*.27); gCtx.scale(GM.comboScale,GM.comboScale);
   gCtx.textAlign='center'; gCtx.textBaseline='middle';
-  // number
+  // number only (removed white "COMBO!" label)
   gCtx.font=`900 ${fs}px "Nunito",sans-serif`;
   gCtx.shadowColor='rgba(0,0,0,.7)'; gCtx.shadowBlur=14;
   gCtx.strokeStyle='#111'; gCtx.lineWidth=8; gCtx.strokeText(GM.combo,0,0);
   gCtx.fillStyle=c; gCtx.fillText(GM.combo,0,0);
   gCtx.shadowBlur=0;
-  // COMBO label
-  gCtx.font='800 17px "Nunito",sans-serif';
-  gCtx.strokeStyle='#111'; gCtx.lineWidth=4; gCtx.strokeText('COMBO!',0,44);
-  gCtx.fillStyle='#fff'; gCtx.fillText('COMBO!',0,44);
+  gCtx.restore();
+}
+
+/* ── DIALOGUE ── */
+function showDialogue(text){
+  GM.dialogue.text=text;
+  GM.dialogue.life=GM.dialogue.maxLife;
+  GM.dialogue.scale=0;
+  GM.dialogue.yOffset=0;
+  GM.dialogue.xOffset=(Math.random()-.5)*30;
+}
+function drawDialogue(cx,cy){
+  const d=GM.dialogue;
+  if(d.life<=0) return;
+  // alpha: fade in quickly, fade out slowly
+  const alpha=Math.min(1,d.life/.3)*Math.min(1,(d.maxLife-d.life)/.6);
+  if(alpha<=0) return;
+  gCtx.save();
+  gCtx.globalAlpha=alpha;
+  // floating upward offset
+  const floatY=cy-155-d.yOffset;
+  const floatX=cx+d.xOffset;
+  // bubble
+  const padX=14,padY=10;
+  gCtx.font='700 13px "Noto Sans SC",sans-serif';
+  const tw=gCtx.measureText(d.text).width;
+  const bw=tw+padX*2, bh=34;
+  const bx=floatX-bw/2, by=floatY;
+  // bubble bg
+  gCtx.fillStyle='#fff';
+  gCtx.beginPath();
+  gCtx.moveTo(bx+12,by);
+  gCtx.lineTo(bx+bw-12,by);
+  gCtx.quadraticCurveTo(bx+bw,by,bx+bw,by+12);
+  gCtx.lineTo(bx+bw,by+bh-12);
+  gCtx.quadraticCurveTo(bx+bw,by+bh,bx+bw-12,by+bh);
+  gCtx.lineTo(bx+12,by+bh);
+  gCtx.quadraticCurveTo(bx,by+bh,bx,by+bh-12);
+  gCtx.lineTo(bx,by+12);
+  gCtx.quadraticCurveTo(bx,by,bx+12,by);
+  gCtx.closePath();
+  gCtx.fill();
+  // bubble border
+  gCtx.strokeStyle='rgba(0,0,0,.12)';
+  gCtx.lineWidth=1.5;
+  gCtx.stroke();
+  // tail (points down toward AI head)
+  gCtx.fillStyle='#fff';
+  gCtx.beginPath();
+  gCtx.moveTo(floatX-6,by+bh-1);
+  gCtx.lineTo(floatX+6,by+bh-1);
+  gCtx.lineTo(floatX,by+bh+8);
+  gCtx.closePath();
+  gCtx.fill();
+  gCtx.strokeStyle='rgba(0,0,0,.12)';
+  gCtx.beginPath();
+  gCtx.moveTo(floatX-6,by+bh-1);
+  gCtx.lineTo(floatX,by+bh+8);
+  gCtx.lineTo(floatX+6,by+bh-1);
+  gCtx.stroke();
+  // text
+  gCtx.fillStyle='#1f2937';
+  gCtx.textAlign='center';
+  gCtx.textBaseline='middle';
+  gCtx.fillText(d.text,floatX,by+bh/2+1);
   gCtx.restore();
 }
 
@@ -1339,6 +1444,10 @@ function gHit(tapX,tapY){
   GM.comboScale=1.65;
   clearTimeout(GM.comboTimerID);
   GM.comboTimerID=setTimeout(()=>{ GM.combo=0; },GM.COMBO_TIMEOUT);
+
+  // Show dialogue
+  const diaIdx=Math.floor(Math.random()*AI_DIALOGUES.length);
+  showDialogue(AI_DIALOGUES[diaIdx]);
 
   // Shake & flash & squish
   ai.shakeMag=Math.min(24,3+GM.combo); ai.flash=1;
@@ -1423,6 +1532,12 @@ function gLoop(ts){
   GM.bgFlash*=Math.pow(.74,dt*60);
   GM.comboScale+=(1-GM.comboScale)*Math.min(1,dt*13);
 
+  // update dialogue (float upward and fade)
+  if(GM.dialogue.life>0){
+    GM.dialogue.life-=dt;
+    GM.dialogue.yOffset+=dt*35; // float up 35px per second
+  }
+
   GM.hammers=GM.hammers.filter(h=>!h.done);
   GM.hammers.forEach(h=>stepHammer(h,dt));
   GM.particles.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.3;p.vx*=.96;p.life-=dt*1.9;});
@@ -1447,6 +1562,9 @@ function gLoop(ts){
   gCtx.globalAlpha=1;
 
   drawAI(ai.x+ai.shakeX,ai.y+bob+ai.shakeY,ai.state,ai.flash,ai.squishX,ai.squishY);
+
+  // draw dialogue bubble above AI
+  drawDialogue(ai.x+ai.shakeX,ai.y+bob+ai.shakeY);
 
   GM.hammers.forEach(h=>{
     const {hx,hy,ang}=hammerPos(h);
@@ -1485,6 +1603,7 @@ function startGame(){
   Object.assign(GM,{combo:0,maxCombo:0,hits:0,hammers:[],particles:[],floaters:[],
     screenShake:0,bgFlash:0,comboScale:1});
   Object.assign(GM.ai,{state:0,flash:0,squishX:1,squishY:1,shakeMag:0,bobPhase:0});
+  GM.dialogue={text:'',life:0,maxLife:2.5,scale:0};
   document.getElementById('maxComboDisplay').textContent=0;
   gRunning=true; gLast=performance.now();
   gRaf=requestAnimationFrame(gLoop);
@@ -1503,11 +1622,497 @@ function gTap(e){
 }
 
 /* ── GAME EVENTS ── */
-document.getElementById('gameBackBtn').addEventListener('click',()=>{stopGame();showPg('result');});
-document.getElementById('gameEntryBtn').addEventListener('click',()=>{showPg('game');setTimeout(startGame,80);});
+let gameReturnPage='cover'; // track which page to return to
+
+document.getElementById('gameBackBtn').addEventListener('click',()=>{
+  stopGame();
+  showPg(gameReturnPage);
+});
+document.getElementById('gameEntryBtn').addEventListener('click',()=>{
+  gameReturnPage='result';
+  showPg('game');
+  setTimeout(startGame,80);
+});
 gCvs.addEventListener('click',gTap);
 gCvs.addEventListener('touchstart',gTap,{passive:false});
 window.addEventListener('resize',()=>{if(gRunning)gResize();});
+
+// ═══════════════════════════════════
+//  AUDIO SYSTEM — Web Audio API
+// ═══════════════════════════════════
+const AudioSys = {
+  ctx: null,
+  bgmOsc: [],
+  bgmGain: null,
+  isPlaying: false,
+  masterGain: null,
+
+  init() {
+    if (this.ctx) return;
+    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    this.masterGain = this.ctx.createGain();
+    this.masterGain.gain.value = 0.35;
+    this.masterGain.connect(this.ctx.destination);
+  },
+
+  resume() {
+    if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
+  },
+
+  // ── BGM: funny cartoon soundtrack with variation ──
+  playBGM() {
+    this.init(); this.resume();
+    if (this.isPlaying) return;
+    this.isPlaying = true;
+    this.bgmGain = this.ctx.createGain();
+    this.bgmGain.gain.value = 0;
+    this.bgmGain.connect(this.masterGain);
+    this.bgmGain.gain.linearRampToValueAtTime(0.20, this.ctx.currentTime + 1.5);
+
+    // C major pentatonic + funny accidentals
+    const notes = [261.63, 293.66, 329.63, 392, 440, 523.25, 587.33, 659.25];
+    // drum patterns: 1=kick, 2=snare, 3=hi-hat, 0=rest
+    const drumPatterns = [
+      [1,3,2,3,1,3,2,3],
+      [1,0,2,3,1,3,2,0],
+      [1,3,1,3,2,3,1,3],
+      [1,2,3,2,1,0,2,3],
+    ];
+    let patternIdx = 0;
+    let loopCount = 0;
+
+    const beat = 0.28;
+    const makeMelody = () => {
+      // Generate varied melody each loop
+      const phrases = [];
+      const phraseCount = 4 + (loopCount % 3); // 4-6 phrases, changes each loop
+      for (let p = 0; p < phraseCount; p++) {
+        const len = 3 + Math.floor(Math.random() * 4); // 3-6 notes
+        for (let n = 0; n < len; n++) {
+          const noteIdx = Math.floor(Math.random() * notes.length);
+          // occasional rest for rhythm
+          const isRest = Math.random() < 0.12;
+          const dur = [0.25, 0.25, 0.25, 0.5, 0.5][Math.floor(Math.random() * 5)];
+          phrases.push([isRest ? -1 : noteIdx, dur]);
+        }
+        // phrase ending: longer note or jump
+        phrases.push([Math.floor(Math.random() * notes.length), 0.5 + Math.random() * 0.5]);
+      }
+      return phrases;
+    };
+
+    const schedule = () => {
+      if (!this.isPlaying) return;
+      const t = this.ctx.currentTime;
+      let beatOffset = 0;
+      const melody = makeMelody();
+      const drums = drumPatterns[patternIdx % drumPatterns.length];
+      patternIdx++;
+      loopCount++;
+
+      // ── DRUMS ──
+      drums.forEach((d, i) => {
+        const start = t + i * beat;
+        if (d === 1) { // kick
+          const osc = this.ctx.createOscillator();
+          const g = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(120, start);
+          osc.frequency.exponentialRampToValueAtTime(40, start + 0.12);
+          g.gain.setValueAtTime(0, start);
+          g.gain.linearRampToValueAtTime(0.14, start + 0.01);
+          g.gain.exponentialRampToValueAtTime(0.001, start + 0.14);
+          osc.connect(g); g.connect(this.bgmGain);
+          osc.start(start); osc.stop(start + 0.14);
+          this.bgmOsc.push(osc);
+        } else if (d === 2) { // snare
+          const buf = this.ctx.createBuffer(1, this.ctx.sampleRate * 0.06, this.ctx.sampleRate);
+          const data = buf.getChannelData(0);
+          for (let j = 0; j < data.length; j++) data[j] = (Math.random() * 2 - 1) * 0.7;
+          const noise = this.ctx.createBufferSource();
+          noise.buffer = buf;
+          const g = this.ctx.createGain();
+          g.gain.setValueAtTime(0.10, start);
+          g.gain.exponentialRampToValueAtTime(0.001, start + 0.06);
+          noise.connect(g); g.connect(this.bgmGain);
+          noise.start(start); noise.stop(start + 0.06);
+          this.bgmOsc.push(noise);
+          // snare tone
+          const osc = this.ctx.createOscillator();
+          const g2 = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(250, start);
+          osc.frequency.exponentialRampToValueAtTime(150, start + 0.05);
+          g2.gain.setValueAtTime(0.06, start);
+          g2.gain.exponentialRampToValueAtTime(0.001, start + 0.05);
+          osc.connect(g2); g2.connect(this.bgmGain);
+          osc.start(start); osc.stop(start + 0.05);
+          this.bgmOsc.push(osc);
+        } else if (d === 3) { // hi-hat
+          const buf = this.ctx.createBuffer(1, this.ctx.sampleRate * 0.02, this.ctx.sampleRate);
+          const data = buf.getChannelData(0);
+          for (let j = 0; j < data.length; j++) data[j] = (Math.random() * 2 - 1) * 0.4;
+          const noise = this.ctx.createBufferSource();
+          noise.buffer = buf;
+          const g = this.ctx.createGain();
+          const hp = this.ctx.createBiquadFilter();
+          hp.type = 'highpass';
+          hp.frequency.value = 6000;
+          g.gain.setValueAtTime(0.06, start);
+          g.gain.exponentialRampToValueAtTime(0.001, start + 0.02);
+          noise.connect(hp); hp.connect(g); g.connect(this.bgmGain);
+          noise.start(start); noise.stop(start + 0.02);
+          this.bgmOsc.push(noise);
+        }
+      });
+
+      // ── MELODY ──
+      melody.forEach(([nIdx, dur]) => {
+        const start = t + beatOffset * beat;
+        const end = start + dur * beat * 4;
+
+        if (nIdx >= 0) {
+          const freq = notes[nIdx];
+
+          // Lead: funny "wobbly" square wave
+          const lead = this.ctx.createOscillator();
+          const lg = this.ctx.createGain();
+          lead.type = 'square';
+          lead.frequency.value = freq;
+          // fast vibrato for cartoon wobble
+          const vib = this.ctx.createOscillator();
+          const vibG = this.ctx.createGain();
+          vib.frequency.value = 6 + Math.random() * 4;
+          vibG.gain.value = 3 + Math.random() * 3;
+          vib.connect(vibG); vibG.connect(lead.frequency);
+          vib.start(start); vib.stop(end);
+
+          lg.gain.setValueAtTime(0, start);
+          lg.gain.linearRampToValueAtTime(0.09, start + 0.015);
+          lg.gain.setValueAtTime(0.09, end - 0.05);
+          lg.gain.linearRampToValueAtTime(0.001, end);
+          lead.connect(lg); lg.connect(this.bgmGain);
+          lead.start(start); lead.stop(end);
+          this.bgmOsc.push(lead);
+          this.bgmOsc.push(vib);
+
+          // Echo: delayed triangle (call-response feel)
+          if (Math.random() < 0.4) {
+            const echo = this.ctx.createOscillator();
+            const eg = this.ctx.createGain();
+            echo.type = 'triangle';
+            echo.frequency.value = freq * (Math.random() < 0.5 ? 0.5 : 1.5);
+            const echoStart = start + beat * 0.5;
+            eg.gain.setValueAtTime(0, echoStart);
+            eg.gain.linearRampToValueAtTime(0.04, echoStart + 0.02);
+            eg.gain.exponentialRampToValueAtTime(0.001, echoStart + dur * beat * 2);
+            echo.connect(eg); eg.connect(this.bgmGain);
+            echo.start(echoStart); echo.stop(echoStart + dur * beat * 2);
+            this.bgmOsc.push(echo);
+          }
+
+          // Occasional "surprise" high chirp
+          if (Math.random() < 0.15) {
+            const chirp = this.ctx.createOscillator();
+            const cg = this.ctx.createGain();
+            chirp.type = 'sine';
+            chirp.frequency.setValueAtTime(freq * 2, start);
+            chirp.frequency.exponentialRampToValueAtTime(freq * 3, start + 0.04);
+            cg.gain.setValueAtTime(0, start);
+            cg.gain.linearRampToValueAtTime(0.05, start + 0.01);
+            cg.gain.exponentialRampToValueAtTime(0.001, start + 0.06);
+            chirp.connect(cg); cg.connect(this.bgmGain);
+            chirp.start(start); chirp.stop(start + 0.06);
+            this.bgmOsc.push(chirp);
+          }
+        }
+
+        // Bass on downbeats
+        if (beatOffset % 4 === 0 && nIdx >= 0) {
+          const bass = this.ctx.createOscillator();
+          const bg = this.ctx.createGain();
+          bass.type = 'sawtooth';
+          bass.frequency.value = notes[nIdx] * 0.5;
+          bg.gain.setValueAtTime(0, start);
+          bg.gain.linearRampToValueAtTime(0.06, start + 0.02);
+          bg.gain.exponentialRampToValueAtTime(0.001, start + beat * 1.0);
+          bass.connect(bg); bg.connect(this.bgmGain);
+          bass.start(start); bass.stop(start + beat * 1.0);
+          this.bgmOsc.push(bass);
+        }
+
+        beatOffset += dur;
+      });
+
+      // Funny "boing" every few loops
+      if (loopCount % 3 === 0) {
+        const boingStart = t + beatOffset * beat * 0.3;
+        const boing = this.ctx.createOscillator();
+        const bg = this.ctx.createGain();
+        boing.type = 'sine';
+        boing.frequency.setValueAtTime(400, boingStart);
+        boing.frequency.exponentialRampToValueAtTime(100, boingStart + 0.15);
+        bg.gain.setValueAtTime(0, boingStart);
+        bg.gain.linearRampToValueAtTime(0.07, boingStart + 0.01);
+        bg.gain.exponentialRampToValueAtTime(0.001, boingStart + 0.18);
+        boing.connect(bg); bg.connect(this.bgmGain);
+        boing.start(boingStart); boing.stop(boingStart + 0.18);
+        this.bgmOsc.push(boing);
+      }
+
+      this.bgmTimeout = setTimeout(() => schedule(), beatOffset * beat * 1000 + 200);
+    };
+    schedule();
+  },
+
+  stopBGM() {
+    this.isPlaying = false;
+    if (this.bgmGain) {
+      this.bgmGain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.5);
+      setTimeout(() => {
+        this.bgmOsc.forEach(o => { try { o.stop(); } catch (e) {} });
+        this.bgmOsc = [];
+        if (this.bgmTimeout) clearTimeout(this.bgmTimeout);
+      }, 500);
+    }
+  },
+
+  // ── SFX: option select ──
+  sfxSelect() {
+    this.init(); this.resume();
+    const osc = this.ctx.createOscillator();
+    const g = this.ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(523.25, this.ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(880, this.ctx.currentTime + 0.08);
+    g.gain.setValueAtTime(0.15, this.ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.12);
+    osc.connect(g); g.connect(this.masterGain);
+    osc.start(); osc.stop(this.ctx.currentTime + 0.12);
+  },
+
+  // ── SFX: result reveal ──
+  sfxReveal() {
+    this.init(); this.resume();
+    const now = this.ctx.currentTime;
+    [440, 554.37, 659.25, 880].forEach((f, i) => {
+      const osc = this.ctx.createOscillator();
+      const g = this.ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = f;
+      g.gain.setValueAtTime(0, now + i * 0.12);
+      g.gain.linearRampToValueAtTime(0.12, now + i * 0.12 + 0.03);
+      g.gain.exponentialRampToValueAtTime(0.001, now + i * 0.12 + 0.25);
+      osc.connect(g); g.connect(this.masterGain);
+      osc.start(now + i * 0.12); osc.stop(now + i * 0.12 + 0.25);
+    });
+  },
+
+  // ── SFX: game hit — funny robot voices ──
+  sfxHit(combo) {
+    this.init(); this.resume();
+    const now = this.ctx.currentTime;
+    const voiceType = Math.floor(Math.random() * 6);
+
+    switch (voiceType) {
+      case 0: // "Ouch!" — high-pitched squeal
+        this._robotVoice(now, 600, 900, 0.12, 'sawtooth', 0.10);
+        break;
+      case 1: // "Boop beep!" — classic robot stutter
+        this._robotBeep(now, [440, 330, 550], [0.06, 0.05, 0.07]);
+        break;
+      case 2: // "System error!" — glitchy descending
+        this._robotGlitch(now, 800, 150, 0.14);
+        break;
+      case 3: // "Whirr-clank!" — mechanical rattle
+        this._robotRattle(now, combo);
+        break;
+      case 4: // "Noooo!" — dramatic slide
+        this._robotVoice(now, 500, 200, 0.18, 'square', 0.12);
+        break;
+      case 5: // "Error 404: face not found" — digital chirp
+        this._robotChirp(now, combo);
+        break;
+    }
+
+    // combo pitch up (layered on top)
+    if (combo > 1) {
+      const osc2 = this.ctx.createOscillator();
+      const g2 = this.ctx.createGain();
+      osc2.type = 'triangle';
+      osc2.frequency.setValueAtTime(330 + combo * 30, now);
+      osc2.frequency.exponentialRampToValueAtTime(660 + combo * 50, now + 0.08);
+      g2.gain.setValueAtTime(0.06, now);
+      g2.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+      osc2.connect(g2); g2.connect(this.masterGain);
+      osc2.start(); osc2.stop(now + 0.1);
+    }
+  },
+
+  // ── Robot voice helpers ──
+  _robotVoice(now, f1, f2, dur, type, vol) {
+    const osc = this.ctx.createOscillator();
+    const g = this.ctx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(f1, now);
+    osc.frequency.exponentialRampToValueAtTime(f2, now + dur * 0.7);
+    // add robot "buzz"
+    const buzz = this.ctx.createOscillator();
+    const buzzG = this.ctx.createGain();
+    buzz.type = 'square';
+    buzz.frequency.value = 50;
+    buzzG.gain.value = 8;
+    buzz.connect(buzzG); buzzG.connect(osc.frequency);
+    buzz.start(now); buzz.stop(now + dur);
+
+    g.gain.setValueAtTime(0, now);
+    g.gain.linearRampToValueAtTime(vol, now + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.001, now + dur);
+    osc.connect(g); g.connect(this.masterGain);
+    osc.start(); osc.stop(now + dur);
+  },
+
+  _robotBeep(now, freqs, durs) {
+    let t = now;
+    freqs.forEach((f, i) => {
+      const osc = this.ctx.createOscillator();
+      const g = this.ctx.createGain();
+      osc.type = 'square';
+      osc.frequency.value = f;
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(0.10, t + 0.01);
+      g.gain.exponentialRampToValueAtTime(0.001, t + durs[i]);
+      osc.connect(g); g.connect(this.masterGain);
+      osc.start(t); osc.stop(t + durs[i]);
+      t += durs[i] + 0.02;
+    });
+  },
+
+  _robotGlitch(now, f1, f2, dur) {
+    // fast stuttering descending tone
+    const steps = 8;
+    for (let i = 0; i < steps; i++) {
+      const osc = this.ctx.createOscillator();
+      const g = this.ctx.createGain();
+      osc.type = i % 2 === 0 ? 'sawtooth' : 'square';
+      const t = now + i * (dur / steps);
+      const f = f1 - (f1 - f2) * (i / steps);
+      osc.frequency.value = f;
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(0.09, t + 0.01);
+      g.gain.exponentialRampToValueAtTime(0.001, t + dur / steps);
+      osc.connect(g); g.connect(this.masterGain);
+      osc.start(t); osc.stop(t + dur / steps);
+    }
+    // noise burst
+    const buf = this.ctx.createBuffer(1, this.ctx.sampleRate * 0.08, this.ctx.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * 0.6;
+    const noise = this.ctx.createBufferSource();
+    noise.buffer = buf;
+    const ng = this.ctx.createGain();
+    ng.gain.setValueAtTime(0.08, now);
+    ng.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+    noise.connect(ng); ng.connect(this.masterGain);
+    noise.start(now); noise.stop(now + 0.08);
+  },
+
+  _robotRattle(now, combo) {
+    // metallic clank
+    const freqs = [800, 1200, 600, 1000, 400];
+    freqs.forEach((f, i) => {
+      const osc = this.ctx.createOscillator();
+      const g = this.ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.value = f + Math.random() * 100;
+      const t = now + i * 0.025;
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(0.08, t + 0.005);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.04);
+      osc.connect(g); g.connect(this.masterGain);
+      osc.start(t); osc.stop(t + 0.04);
+    });
+    // spring "boing"
+    const boing = this.ctx.createOscillator();
+    const bg = this.ctx.createGain();
+    boing.type = 'sine';
+    boing.frequency.setValueAtTime(300 + combo * 20, now + 0.08);
+    boing.frequency.exponentialRampToValueAtTime(80, now + 0.18);
+    bg.gain.setValueAtTime(0, now + 0.08);
+    bg.gain.linearRampToValueAtTime(0.08, now + 0.09);
+    bg.gain.exponentialRampToValueAtTime(0.001, now + 0.20);
+    boing.connect(bg); bg.connect(this.masterGain);
+    boing.start(now + 0.08); boing.stop(now + 0.20);
+  },
+
+  _robotChirp(now, combo) {
+    // digital bird-like chirps
+    const count = 3 + Math.floor(Math.random() * 3);
+    for (let i = 0; i < count; i++) {
+      const osc = this.ctx.createOscillator();
+      const g = this.ctx.createGain();
+      osc.type = 'square';
+      const t = now + i * 0.06;
+      const f = 600 + Math.random() * 400 + combo * 15;
+      osc.frequency.setValueAtTime(f, t);
+      osc.frequency.exponentialRampToValueAtTime(f * 1.5, t + 0.03);
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(0.08, t + 0.01);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.04);
+      osc.connect(g); g.connect(this.masterGain);
+      osc.start(t); osc.stop(t + 0.04);
+    }
+  },
+
+  // ── SFX: low risk celebration ──
+  sfxWin() {
+    this.init(); this.resume();
+    const now = this.ctx.currentTime;
+    const notes = [523.25, 659.25, 783.99, 1046.5];
+    notes.forEach((f, i) => {
+      const osc = this.ctx.createOscillator();
+      const g = this.ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = f;
+      g.gain.setValueAtTime(0, now + i * 0.1);
+      g.gain.linearRampToValueAtTime(0.14, now + i * 0.1 + 0.03);
+      g.gain.exponentialRampToValueAtTime(0.001, now + i * 0.1 + 0.35);
+      osc.connect(g); g.connect(this.masterGain);
+      osc.start(now + i * 0.1); osc.stop(now + i * 0.1 + 0.35);
+    });
+  }
+};
+
+// ── Hook audio into existing events ──
+// NO BGM — only SFX on interactions
+
+// Option select sfx
+const origSelOpt = selOpt;
+selOpt = function(qi, oi) {
+  AudioSys.sfxSelect();
+  return origSelOpt(qi, oi);
+};
+
+// Result reveal sfx
+const origShowResult = showResult;
+showResult = function() {
+  setTimeout(() => AudioSys.sfxReveal(), 400);
+  return origShowResult();
+};
+
+// Low risk win sfx
+const origConfetti = confetti;
+confetti = function() {
+  AudioSys.sfxWin();
+  return origConfetti();
+};
+
+// Game hit sfx
+const origGHit = gHit;
+gHit = function(tapX, tapY) {
+  AudioSys.sfxHit(GM.combo + 1);
+  return origGHit(tapX, tapY);
+};
 
 </script>
 </body>
