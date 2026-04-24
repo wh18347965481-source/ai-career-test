@@ -121,16 +121,16 @@ body::after{
 
 .cv-inner{padding:44px 18px 20px;position:relative}
 
-/* Chip / badge row */
+/* Chip / badge row — L4 lightest */
 .chip{
-  display:inline-flex;align-items:center;gap:6px;
-  font-family:var(--nm);font-size:9px;letter-spacing:1px;
-  text-transform:uppercase;color:var(--ink);
-  background:var(--lime);
-  border:var(--brd);
-  box-shadow:var(--sd) var(--sd) 0 var(--ink);
-  padding:7px 12px;border-radius:0;
-  font-weight:400;margin-bottom:20px;
+  display:inline-flex;align-items:center;gap:5px;
+  font-family:var(--nm);font-size:8px;letter-spacing:.8px;
+  text-transform:uppercase;color:var(--ash);
+  background:var(--paper2);
+  border:1.5px solid var(--ink);
+  box-shadow:2px 2px 0 var(--ink);
+  padding:5px 10px;border-radius:0;
+  font-weight:400;margin-bottom:16px;
   transform:rotate(-1.5deg);
 }
 .chip::before{
@@ -139,13 +139,13 @@ body::after{
 }
 @keyframes blinkBox{0%,100%{opacity:1}50%{opacity:0}}
 
-/* Hero card — big brutalist block */
+/* Hero card — L1 strongest visual block */
 .hero-box{
   background:var(--paper);
   border:var(--brd-thick);
   border-radius:0;
-  padding:22px 18px 20px;
-  text-align:center;margin-bottom:18px;
+  padding:26px 18px 22px;
+  text-align:center;margin-bottom:24px;
   box-shadow:var(--sd-lg) var(--sd-lg) 0 var(--ink),
              calc(var(--sd-lg) + 3px) calc(var(--sd-lg) + 3px) 0 var(--hot);
   position:relative;
@@ -183,12 +183,12 @@ body::after{
 }
 
 .cv-title{
-  font-size:42px;font-weight:900;line-height:1.1;
-  margin-bottom:8px;letter-spacing:-1px;
+  font-size:42px;font-weight:900;line-height:1.05;
+  margin-bottom:10px;letter-spacing:-1px;
   color:var(--ink);
   text-shadow:
-    3px 3px 0 var(--sun),
-    3px 3px 0 var(--ink);
+    4px 4px 0 var(--sun),
+    4px 4px 0 var(--ink);
 }
 .cv-title span{
   color:var(--hot);
@@ -198,15 +198,15 @@ body::after{
 }
 
 .cv-sub{
-  font-size:13.5px;color:var(--ink2);
-  line-height:1.65;margin-bottom:14px;font-weight:600;
+  font-size:13px;color:var(--ash);
+  line-height:1.65;margin-bottom:16px;font-weight:500;
 }
 
 .count-pill{
-  display:inline-flex;align-items:center;gap:6px;
-  background:var(--ink);color:var(--paper);
-  border:var(--brd);border-radius:0;
-  padding:6px 14px;font-size:11.5px;font-weight:700;
+  display:inline-flex;align-items:center;gap:5px;
+  background:var(--ink);color:var(--paper2);
+  border:1.5px solid var(--ink);border-radius:0;
+  padding:5px 12px;font-size:10.5px;font-weight:600;
   box-shadow:2px 2px 0 var(--hot);
   font-family:var(--fn);
 }
@@ -215,12 +215,12 @@ body::after{
   padding:0 3px;
 }
 
-/* Intro card */
+/* Intro card — L3 lighter weight */
 .intro-card{
   background:var(--paper);
-  border:var(--brd-thick);border-radius:0;
-  padding:16px 16px 14px;margin-bottom:16px;
-  box-shadow:var(--sd-lg) var(--sd-lg) 0 var(--ink);
+  border:1.5px solid var(--ink);border-radius:0;
+  padding:14px 14px 12px;margin-bottom:20px;
+  box-shadow:3px 3px 0 var(--ink);
   position:relative;
 }
 .intro-card::after{
@@ -238,16 +238,16 @@ body::after{
 }
 
 .intro-hook{
-  font-size:13.5px;font-weight:700;color:var(--ink);
+  font-size:13px;font-weight:700;color:var(--ink2);
   margin-bottom:12px;line-height:1.6;
 }
 
 .intro-tiers{display:flex;gap:7px;margin-bottom:12px}
 .it{
   flex:1;text-align:center;
-  border:var(--brd);border-radius:0;
+  border:1.5px solid var(--ink);border-radius:0;
   padding:10px 4px 8px;
-  box-shadow:3px 3px 0 var(--ink);
+  box-shadow:2px 2px 0 var(--ink);
   transition:transform .15s, box-shadow .15s;
   background:#fff;
 }
@@ -263,17 +263,17 @@ body::after{
 .it .is{font-size:9.5px;color:var(--ink2);display:block;font-weight:500}
 
 .intro-meta{
-  font-size:11px;color:var(--ink2);text-align:center;
-  line-height:1.7;border-top:1.5px dashed var(--ink);
+  font-size:10.5px;color:var(--ash);text-align:center;
+  line-height:1.7;border-top:1px dashed var(--ash);
   padding-top:10px;margin-top:2px;font-weight:500;
 }
 
-/* Dim tags */
-.dim-row{display:flex;flex-wrap:nowrap;gap:5px;margin-bottom:22px;justify-content:center}
+/* Dim tags — L4 lightest */
+.dim-row{display:flex;flex-wrap:nowrap;gap:5px;margin-bottom:24px;justify-content:center}
 .dc{
   font-size:10px;padding:4px 8px;border-radius:0;
   font-weight:700;letter-spacing:.1px;
-  border:var(--brd);
+  border:1.5px solid var(--ink);
   box-shadow:2px 2px 0 var(--ink);
   font-family:var(--fn);
   white-space:nowrap;
@@ -283,14 +283,15 @@ body::after{
 .dc.ha{background:var(--sun)}
 .dc.le{background:var(--peach)}
 
-/* START button — brutalist mega CTA */
+/* START button — L1 strongest CTA */
 .start-btn{
-  width:100%;padding:16px;
+  width:100%;padding:18px;
   background:var(--hot);color:#fff;
   border:var(--brd-thick);border-radius:0;
-  font-size:17px;font-weight:900;
+  font-size:19px;font-weight:900;
   font-family:var(--fn);cursor:pointer;
-  box-shadow:var(--sd-lg) var(--sd-lg) 0 var(--ink);
+  box-shadow:var(--sd-lg) var(--sd-lg) 0 var(--ink),
+             calc(var(--sd-lg) + 3px) calc(var(--sd-lg) + 3px) 0 var(--ink);
   transition:transform .12s, box-shadow .12s;
   letter-spacing:1px;
   position:relative;
